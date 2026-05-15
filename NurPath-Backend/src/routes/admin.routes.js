@@ -1,0 +1,10 @@
+const express = require('express');
+const { getDashboard, getAllUsers, toggleUserActive, sendAnnouncement } = require('../controllers/admin.controller');
+const { protect, adminOnly } = require('../middleware/auth.middleware');
+const router = express.Router();
+router.use(protect, adminOnly);
+router.get('/dashboard', getDashboard);
+router.get('/users', getAllUsers);
+router.put('/users/:id/toggle-active', toggleUserActive);
+router.post('/announcements', sendAnnouncement);
+module.exports = router;
