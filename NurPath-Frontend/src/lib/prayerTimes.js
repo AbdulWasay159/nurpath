@@ -213,12 +213,12 @@ export function formatPrayerTime(date) {
 // ── Prayer-specific hadiths ────────────────────────────────
 export const PRAYER_HADITHS = {
   fajr: {
-    text: 'The two rak'ahs of Fajr are better than this world and everything in it.',
+    text: 'The two rakahs of Fajr are better than this world and everything in it.',
     source: 'Sahih Muslim 725',
     arabic: 'رَكْعَتَا الفَجْرِ خَيْرٌ مِنَ الدُّنْيَا وَمَا فِيهَا',
   },
   dhuhr: {
-    text: 'The gates of Paradise are opened at noon (Dhuhr), and the believer who prays four rak'ahs before Dhuhr — Allah forbids the Fire from touching him.',
+    text: 'The gates of Paradise are opened at noon (Dhuhr), and the believer who prays four rakahs before Dhuhr — Allah forbids the Fire from touching him.',
     source: 'Abu Dawud 1269',
     arabic: 'مَنْ حَافَظَ عَلَى أَرْبَعِ رَكَعَاتٍ قَبْلَ الظُّهْرِ وَأَرْبَعٍ بَعْدَهَا حَرَّمَهُ اللَّهُ عَلَى النَّارِ',
   },
