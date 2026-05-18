@@ -61,13 +61,51 @@ export function usePrayerTimes() {
     if (!coords) return;
 
     const today = new Date();
-    const computed = calculatePrayerTimes(coords.lat, coords.lng, today);
-    setTimes(computed);
+    const fetchTimes = async () => {
+      try {
+        const todayStr = today.toLocaleDateString('en-GB').split('/').join('-');
+
+        const res = await fetch(
+          `https://api.aladhan.com/v1/timings/${todayStr}?latitude=${coords.lat}&longitude=${coords.lng}&method=17`
+        );
+
+        const data = await res.json();
+
+        if (data.code === 200) {
+          const hijriData = data.data.date.hijri;
+
+          const realHijri = {
+            day: hijriData.day,
+            month: hijriData.month.number,
+            year: hijriData.year,
+            monthName: hijriData.month.en,
+            monthNameAr: hijriData.month.ar,
+            formatted: `${hijriData.day} ${hijriData.month.en} ${hijriData.year} AH`,
+            formattedAr: `${hijriData.day} ${hijriData.month.ar} ${hijriData.year} هـ`,
+            formattedShort: `${hijriData.day} ${hijriData.month.en}`,
+          };
+
+          setHijri(realHijri);
+          setIslamicOccasion(getIslamicOccasion(realHijri));
+          
+          setTimes({
+            fajr: new Date(`${today.toDateString()} ${data.data.timings.Fajr}`),
+            sunrise: new Date(`${today.toDateString()} ${data.data.timings.Sunrise}`),
+            dhuhr: new Date(`${today.toDateString()} ${data.data.timings.Dhuhr}`),
+            asr: new Date(`${today.toDateString()} ${data.data.timings.Asr}`),
+            maghrib: new Date(`${today.toDateString()} ${data.data.timings.Maghrib}`),
+            isha: new Date(`${today.toDateString()} ${data.data.timings.Isha}`),
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchTimes();
 
     // Hijri
-    const h = gregorianToHijri(today);
-    setHijri(h);
-    setIslamicOccasion(getIslamicOccasion(h));
+
   }, [coords]);
 
   // Update live values every second
@@ -100,13 +138,13 @@ export function usePrayerTimes() {
 
   const formattedTimes = times
     ? {
-        fajr:    formatPrayerTime(times.fajr),
-        sunrise: formatPrayerTime(times.sunrise),
-        dhuhr:   formatPrayerTime(times.dhuhr),
-        asr:     formatPrayerTime(times.asr),
-        maghrib: formatPrayerTime(times.maghrib),
-        isha:    formatPrayerTime(times.isha),
-      }
+      fajr: formatPrayerTime(times.fajr),
+      sunrise: formatPrayerTime(times.sunrise),
+      dhuhr: formatPrayerTime(times.dhuhr),
+      asr: formatPrayerTime(times.asr),
+      maghrib: formatPrayerTime(times.maghrib),
+      isha: formatPrayerTime(times.isha),
+    }
     : null;
 
   return {

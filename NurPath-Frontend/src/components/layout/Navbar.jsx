@@ -4,28 +4,29 @@ import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { gregorianToHijri } from '../../lib/hijri';
+import { usePrayerTimes } from '../../hooks/usePrayerTimes';
 import {
   LayoutDashboard, Calendar, BookOpen, BarChart2,
   User, LogOut, Menu, X, Bell, ShieldCheck, Moon, Clock,
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/prayers',   label: 'Prayers',    icon: Moon },
-  { href: '/events',    label: 'Events',     icon: Calendar },
-  { href: '/history',   label: 'History',    icon: BookOpen },
-  { href: '/stats',     label: 'Statistics', icon: BarChart2 },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/prayers', label: 'Prayers', icon: Moon },
+  { href: '/events', label: 'Events', icon: Calendar },
+  { href: '/history', label: 'History', icon: BookOpen },
+  { href: '/stats', label: 'Statistics', icon: BarChart2 },
 ];
 
 export default function Navbar({ notifications = 0 }) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [hijri, setHijri] = useState(null);
+  const { hijri } = usePrayerTimes();
   const [time, setTime] = useState('');
 
   useEffect(() => {
-    setHijri(gregorianToHijri(new Date()));
+
     const tick = () => {
       setTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
     };
@@ -42,10 +43,10 @@ export default function Navbar({ notifications = 0 }) {
       className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
       style={isActive(href)
         ? {
-            background: teal ? 'rgba(45,212,191,0.1)' : 'rgba(201,168,76,0.12)',
-            color: teal ? '#2DD4BF' : '#C9A84C',
-            borderLeft: `2px solid ${teal ? '#2DD4BF' : '#C9A84C'}`,
-          }
+          background: teal ? 'rgba(45,212,191,0.1)' : 'rgba(201,168,76,0.12)',
+          color: teal ? '#2DD4BF' : '#C9A84C',
+          borderLeft: `2px solid ${teal ? '#2DD4BF' : '#C9A84C'}`,
+        }
         : { color: '#7A8FA8' }
       }>
       <Icon size={17} />
