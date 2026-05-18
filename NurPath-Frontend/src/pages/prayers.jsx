@@ -7,7 +7,8 @@ import { PrayerRing, PrayerCard, PrayerPill } from '../components/prayer/PrayerC
 import { Card, Skeleton } from '../components/ui';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { Clock, MapPin, ChevronDown, ChevronUp, Navigation } from 'lucide-react';
+import { usePrayerTimes } from '../hooks/usePrayerTimes';
+import { Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 
 const PRAYER_NAMES = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 const PRAYER_META = {
@@ -17,171 +18,114 @@ const PRAYER_META = {
   maghrib: { icon: '🌅', label: 'Maghrib', arabic: 'المغرب' },
   isha:    { icon: '🌙', label: 'Isha',    arabic: 'العشاء' },
 };
-const SUN_TIMES = [
-  { key: 'Imsak',    icon: '🌑', label: 'Imsak',    desc: 'Pre-Fajr' },
-  { key: 'Sunrise',  icon: '🌄', label: 'Sunrise',  desc: 'Shuruq' },
-  { key: 'Sunset',   icon: '🌇', label: 'Sunset',   desc: 'Ghurub' },
-  { key: 'Midnight', icon: '🌌', label: 'Midnight', desc: 'Nisf al-Layl' },
-];
 
-const fmt12 = (t) => {
-  if (!t) return '—';
-  try {
-    const [h, m] = t.split(':').map(Number);
-    const suffix = h >= 12 ? 'PM' : 'AM';
-    return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${suffix}`;
-  } catch { return t; }
-};
+
 
 // ── Prayer Times Section ─────────────────────────────────────────────────
 function PrayerTimesSection() {
-  const [times, setTimes] = useState(null);
-  const [city, setCity] = useState('');
-  const [inputCity, setInputCity] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [hijri, setHijri] = useState(null);
+  const {
+    formattedTimes,
+    nextPrayer,
+    hijri,
+    islamicOccasion,
+    locationName,
+    locationLoading,
+    countdown,
+  } = usePrayerTimes();
 
-  const fetchByCoords = async (lat, lng) => {
-    setLoading(true); setError('');
-    try {
-      const today = format(new Date(), 'dd-MM-yyyy');
-      const res = await fetch(`https://api.aladhan.com/v1/timings/${today}?latitude=${lat}&longitude=${lng}&method=1`);
-      const data = await res.json();
-      if (data.code === 200) {
-        setTimes(data.data.timings);
-        setHijri(data.data.date.hijri);
-        setCity(`${lat.toFixed(2)}°, ${lng.toFixed(2)}°`);
-      } else { setError('Could not fetch timings.'); }
-    } catch { setError('Network error. Please try again.'); }
-    finally { setLoading(false); }
-  };
+  const loading = locationLoading || !formattedTimes;
 
-  const fetchByCity = async (cityName) => {
-    if (!cityName.trim()) return;
-    setLoading(true); setError('');
-    try {
-      const today = format(new Date(), 'dd-MM-yyyy');
-      const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${today}?city=${encodeURIComponent(cityName)}&country=&method=1`);
-      const data = await res.json();
-      if (data.code === 200) {
-        setTimes(data.data.timings);
-        setHijri(data.data.date.hijri);
-        setCity(cityName);
-      } else { setError('City not found. Try "Hyderabad" or "London, UK".'); }
-    } catch { setError('Network error. Please try again.'); }
-    finally { setLoading(false); }
-  };
-
-  const detectLocation = () => {
-    if (!navigator.geolocation) { setError('Geolocation not supported.'); return; }
-    setLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { setLocationLoading(false); fetchByCoords(pos.coords.latitude, pos.coords.longitude); },
-      () => { setLocationLoading(false); setError('Location denied. Enter your city below.'); }
-    );
-  };
-
-  useEffect(() => { detectLocation(); }, []);
-
-  const getNextPrayer = () => {
-    if (!times) return null;
-    const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
-    for (const name of PRAYER_NAMES) {
-      const key = name.charAt(0).toUpperCase() + name.slice(1);
-      const t = times[key] || '';
-      if (!t) continue;
-      const [h, m] = t.split(':').map(Number);
-      if (h * 60 + m > nowMins) return name;
-    }
-    return PRAYER_NAMES[0]; // wrap to fajr next day
-  };
-
-  const nextPrayer = getNextPrayer();
+  const DISPLAY_PRAYERS = [
+    { name: 'fajr',    key: 'fajr',    ...PRAYER_META.fajr },
+    { name: 'sunrise', key: 'sunrise',  icon: '🌄', label: 'Sunrise', arabic: 'شروق' },
+    { name: 'dhuhr',   key: 'dhuhr',   ...PRAYER_META.dhuhr },
+    { name: 'asr',     key: 'asr',     ...PRAYER_META.asr },
+    { name: 'maghrib', key: 'maghrib', ...PRAYER_META.maghrib },
+    { name: 'isha',    key: 'isha',    ...PRAYER_META.isha },
+  ];
 
   return (
     <div>
-      {/* Location bar */}
-      <div className="flex gap-3 mb-6 items-center flex-wrap">
-        <button onClick={detectLocation} disabled={locationLoading || loading}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition shrink-0"
-          style={{ background: 'rgba(45,212,191,0.1)', border: '1px solid rgba(45,212,191,0.25)', color: '#2DD4BF', opacity: (locationLoading || loading) ? 0.6 : 1 }}>
-          <Navigation size={14} />{locationLoading ? 'Detecting...' : 'Use my location'}
-        </button>
-        <input type="text" placeholder='Enter city — "Hyderabad" or "London, UK"'
-          className="flex-1 px-4 py-2.5 rounded-xl text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none text-white placeholder-gray-600 transition min-w-0"
-          style={{ background: 'rgba(0,0,0,0.4)' }}
-          value={inputCity}
-          onChange={(e) => setInputCity(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && fetchByCity(inputCity)} />
-        <button onClick={() => fetchByCity(inputCity)} disabled={loading}
-          className="px-5 py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50 shrink-0"
-          style={{ background: '#C9A84C', color: '#1A1000' }}>
-          Search
-        </button>
+      {/* Location + Hijri header */}
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+        <p className="text-sm flex items-center gap-1.5" style={{ color: '#7A8FA8' }}>
+          <MapPin size={13} style={{ color: '#C9A84C' }} />
+          {locationLoading ? 'Detecting location...' : locationName}
+          <span className="text-xs px-2 py-0.5 rounded-full ml-1"
+            style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C' }}>
+            Ahle Hadees (18°/17°)
+          </span>
+        </p>
+        {hijri && (
+          <div className="text-right">
+            <p className="text-sm font-amiri" style={{ color: '#C9A84C' }}>{hijri.formatted}</p>
+            {islamicOccasion && (
+              <p className="text-xs mt-0.5" style={{ color: '#2DD4BF' }}>🌙 {islamicOccasion}</p>
+            )}
+          </div>
+        )}
       </div>
 
-      {error && <p className="text-sm mb-4" style={{ color: '#EF4444' }}>{error}</p>}
-
-      {city && !loading && (
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <p className="text-sm flex items-center gap-1.5" style={{ color: '#7A8FA8' }}>
-            <MapPin size={13} style={{ color: '#C9A84C' }} />{city}
-          </p>
-          {hijri && (
-            <p className="text-sm font-amiri" style={{ color: '#C9A84C' }}>
-              {hijri.day} {hijri.month.en} {hijri.year} AH
+      {/* Next prayer countdown banner */}
+      {nextPrayer && countdown && !loading && (
+        <div className="rounded-2xl p-4 mb-5 flex items-center justify-between"
+          style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
+          <div>
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#7A6130' }}>Next Prayer</p>
+            <p className="text-lg font-semibold" style={{ color: '#C9A84C' }}>
+              {nextPrayer.label}
+              <span className="font-amiri text-base ml-2" style={{ color: '#7A6130' }}>{nextPrayer.arabic}</span>
             </p>
-          )}
+          </div>
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#7A6130' }}>In</p>
+            <p className="text-2xl font-bold tabular-nums" style={{ color: '#C9A84C' }}>{countdown}</p>
+          </div>
         </div>
       )}
 
+      {/* Loading skeleton */}
       {loading && (
-        <div className="space-y-3">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-2xl animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-28 rounded-2xl animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
+          ))}
         </div>
       )}
 
-      {!loading && times && (
+      {/* Prayer times grid */}
+      {!loading && formattedTimes && (
         <>
-          {/* 5 prayers grid */}
-          <div className="grid grid-cols-5 gap-3 mb-6">
-            {PRAYER_NAMES.map((name) => {
-              const meta = PRAYER_META[name];
-              const key = name.charAt(0).toUpperCase() + name.slice(1);
-              const rawTime = times[key] || '';
-              const isNext = nextPrayer === name;
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-4">
+            {DISPLAY_PRAYERS.map(({ name, key, icon, label, arabic }) => {
+              const isNext = nextPrayer?.name === name;
+              const isSunrise = name === 'sunrise';
               return (
                 <div key={name} className="rounded-2xl p-4 text-center transition"
                   style={{
                     background: isNext ? 'rgba(201,168,76,0.12)' : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${isNext ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.07)'}`,
                   }}>
-                  <span className="block text-2xl mb-2">{meta.icon}</span>
-                  <span className="block text-xs font-semibold mb-1" style={{ color: isNext ? '#C9A84C' : '#EDE8D8' }}>{meta.label}</span>
-                  <span className="block font-amiri text-xs mb-3" style={{ color: '#7A6130' }}>{meta.arabic}</span>
-                  <span className="block text-sm font-bold" style={{ color: isNext ? '#C9A84C' : '#2DD4BF' }}>{fmt12(rawTime)}</span>
-                  {isNext && <span className="block text-xs mt-1.5 font-semibold" style={{ color: '#C9A84C' }}>Next ▸</span>}
+                  <span className="block text-2xl mb-2">{icon}</span>
+                  <span className="block text-xs font-semibold mb-1"
+                    style={{ color: isNext ? '#C9A84C' : '#EDE8D8' }}>{label}</span>
+                  <span className="block font-amiri text-xs mb-3" style={{ color: '#7A6130' }}>{arabic}</span>
+                  <span className="block text-sm font-bold"
+                    style={{ color: isNext ? '#C9A84C' : isSunrise ? '#F59E0B' : '#2DD4BF' }}>
+                    {formattedTimes[key] || '—'}
+                  </span>
+                  {isNext && (
+                    <span className="block text-xs mt-1.5 font-semibold" style={{ color: '#C9A84C' }}>Next ▸</span>
+                  )}
+                  {isSunrise && (
+                    <span className="block text-xs mt-1" style={{ color: '#3A4A60' }}>no prayer</span>
+                  )}
                 </div>
               );
             })}
           </div>
-
-          {/* Sun times row */}
-          <div className="rounded-2xl p-4 grid grid-cols-4 gap-3 mb-3"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            {SUN_TIMES.map(({ key, icon, label, desc }) => (
-              <div key={key} className="text-center">
-                <span className="block text-xl mb-1">{icon}</span>
-                <span className="block text-xs font-semibold mb-0.5" style={{ color: '#EDE8D8' }}>{label}</span>
-                <span className="block text-xs mb-2" style={{ color: '#3A4A60' }}>{desc}</span>
-                <span className="block text-sm font-bold" style={{ color: '#7A8FA8' }}>{fmt12(times[key] || '')}</span>
-              </div>
-            ))}
-          </div>
           <p className="text-xs text-center" style={{ color: '#3A4A60' }}>
-            Powered by AlAdhan API · Univ. of Islamic Sciences, Karachi calculation method
+            Calculated locally · Ahle Hadees method (Fajr 18° · Isha 17°) · Defaults to Hyderabad if location denied
           </p>
         </>
       )}
@@ -323,15 +267,13 @@ export default function PrayersPage() {
   const [updatingPrayer, setUpdatingPrayer] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
   const [historyDays, setHistoryDays] = useState(30);
-  const [activeTab, setActiveTab] = useState(isAdmin ? 'masjids' : 'today');
+  const [activeTab, setActiveTab] = useState('today');
 
   useEffect(() => {
-    if (isAdmin) { setLoadingToday(false); return; }
     api.get('/prayers/today').then((r) => setPrayers(r.data.data.prayers)).catch(() => toast.error('Could not load prayers.')).finally(() => setLoadingToday(false));
   }, []);
 
   useEffect(() => {
-    if (isAdmin) return;
     setLoadingHistory(true);
     api.get(`/prayers/history?days=${historyDays}`).then((r) => setHistory(r.data.data || [])).catch(() => {}).finally(() => setLoadingHistory(false));
   }, [historyDays]);
@@ -351,9 +293,12 @@ export default function PrayersPage() {
     finally { setUpdatingPrayer(null); }
   };
 
-  const tabs = isAdmin
-    ? [{ id: 'prayertimes', label: 'Prayer Times', icon: '🕐' }, { id: 'masjids', label: 'Masjid Timings', icon: '🕌' }]
-    : [{ id: 'today', label: "Today's Salah", icon: '🤲' }, { id: 'prayertimes', label: 'Prayer Times', icon: '🕐' }, { id: 'masjids', label: 'Masjid Timings', icon: '🕌' }, { id: 'history', label: 'History', icon: '📅' }];
+  const tabs = [
+    { id: 'today',       label: "Today's Salah",  icon: '🤲' },
+    { id: 'prayertimes', label: 'Prayer Times',   icon: '🕐' },
+    { id: 'masjids',     label: 'Masjid Timings', icon: '🕌' },
+    { id: 'history',     label: 'History',        icon: '📅' },
+  ];
 
   return (
     <AppLayout>

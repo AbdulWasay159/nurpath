@@ -1,0 +1,27 @@
+{
+  "name": "NurPath — Islamic Prayer Tracker",
+  "short_name": "NurPath",
+  "description": "Track your daily Salah, find prayer times, and stay connected to your deen.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080D13",
+  "theme_color": "#C9A84C",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "religion", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+}
