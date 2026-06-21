@@ -51,9 +51,19 @@ if (rateLimit) {
     max: 200,
     message: { success: false, message: 'Too many requests.' },
   });
-  app.use('/api/auth/login',    authLimiter);
-  app.use('/api/auth/register', authLimiter);
-  app.use('/api/',              globalLimiter);
+  const forgotPasswordLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3,
+    message: { success: false, message: 'Too many reset requests. Please wait an hour and try again.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use('/api/auth/login',           authLimiter);
+  app.use('/api/auth/register',        authLimiter);
+  app.use('/api/auth/forgot-password', forgotPasswordLimiter);
+  app.use('/api/auth/reset-password',  authLimiter);
+  app.use('/api/',                     globalLimiter);
 }
 
 // ── Logging (dev only) ──

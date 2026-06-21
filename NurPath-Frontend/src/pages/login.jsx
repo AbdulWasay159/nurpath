@@ -90,9 +90,14 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-widest" style={{ color: '#7A8FA8' }}>
+                  Password
+                </label>
+                <Link href="/forgot-password" className="text-xs font-medium hover:underline" style={{ color: '#C9A84C' }}>
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   type={showPw ? 'text' : 'password'} className="input-field pr-12"

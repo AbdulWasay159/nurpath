@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema(
     totalMissed: { type: Number, default: 0 },
     notificationsEnabled: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
+
+    // ── Password reset ──
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpire: { type: Date, select: false },
+
+    // ── Brute-force lockout ──
+    loginAttempts: { type: Number, default: 0, select: false },
+    lockUntil: { type: Date, select: false },
   },
   { timestamps: true }
 );
@@ -62,10 +70,48 @@ userSchema.methods.comparePassword = async function (candidate) {
   return bcrypt.compare(candidate, this.password);
 };
 
+// ── Password reset token ──
+userSchema.methods.createPasswordResetToken = function () {
+  const crypto = require('crypto');
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  this.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+  return resetToken; // raw token — only this goes in the email
+};
+
+// ── Account lockout helpers ──
+userSchema.methods.isLocked = function () {
+  return !!(this.lockUntil && this.lockUntil > Date.now());
+};
+
+userSchema.methods.incLoginAttempts = async function () {
+  // If a previous lock has expired, restart the count
+  if (this.lockUntil && this.lockUntil < Date.now()) {
+    this.loginAttempts = 1;
+    this.lockUntil = undefined;
+  } else {
+    this.loginAttempts = (this.loginAttempts || 0) + 1;
+    if (this.loginAttempts >= 5) {
+      this.lockUntil = Date.now() + 15 * 60 * 1000; // 15 min lock
+    }
+  }
+  await this.save({ validateBeforeSave: false });
+};
+
+userSchema.methods.resetLoginAttempts = async function () {
+  this.loginAttempts = 0;
+  this.lockUntil = undefined;
+  await this.save({ validateBeforeSave: false });
+};
+
 // Remove password from JSON output
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.resetPasswordToken;
+  delete obj.resetPasswordExpire;
+  delete obj.loginAttempts;
+  delete obj.lockUntil;
   return obj;
 };
 

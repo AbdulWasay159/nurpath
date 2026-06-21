@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
     const cached = localStorage.getItem('nurpath_user');
     if (token && cached) {
       setUser(JSON.parse(cached));
-      // Verify token is still valid
       api.get('/auth/me')
         .then((res) => {
           setUser(res.data.user);
@@ -59,8 +58,26 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('nurpath_user', JSON.stringify(updated));
   };
 
+  // ── Forgot / reset password ──
+  const forgotPassword = async (email) => {
+    const res = await api.post('/auth/forgot-password', { email });
+    return res.data;
+  };
+
+  const resetPassword = async (token, password) => {
+    const res = await api.post(`/auth/reset-password/${token}`, { password });
+    const { token: authToken, user } = res.data;
+    localStorage.setItem('nurpath_token', authToken);
+    localStorage.setItem('nurpath_user', JSON.stringify(user));
+    setUser(user);
+    return user;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{
+      user, loading, login, register, logout, updateUser,
+      forgotPassword, resetPassword,
+    }}>
       {children}
     </AuthContext.Provider>
   );
