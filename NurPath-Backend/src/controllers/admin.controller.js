@@ -25,7 +25,7 @@ const getDashboard = asyncHandler(async (req, res) => {
 
 // GET /api/admin/users
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({ role: 'user' })
+  const users = await User.find({})
     .select('-password')
     .sort({ createdAt: -1 });
   res.json({ success: true, count: users.length, data: users });
@@ -41,6 +41,30 @@ const toggleUserActive = asyncHandler(async (req, res) => {
   user.isActive = !user.isActive;
   await user.save();
   res.json({ success: true, message: `User ${user.isActive ? 'activated' : 'deactivated'}.`, data: user });
+});
+
+// PUT /api/admin/users/:id/make-admin
+const makeAdmin = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+  if (user.role === 'admin') {
+    return res.status(400).json({ success: false, message: 'User is already an admin.' });
+  }
+  user.role = 'admin';
+  await user.save();
+  res.json({ success: true, message: `${user.name} is now an admin.`, data: user });
+});
+
+// PUT /api/admin/users/:id/remove-admin
+const removeAdmin = asyncHandler(async (req, res) => {
+  if (req.params.id === req.user._id.toString()) {
+    return res.status(400).json({ success: false, message: 'You cannot remove your own admin access.' });
+  }
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+  user.role = 'user';
+  await user.save();
+  res.json({ success: true, message: `${user.name} is no longer an admin.`, data: user });
 });
 
 // POST /api/admin/announcements
@@ -59,4 +83,4 @@ const sendAnnouncement = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, message: 'Announcement sent to all users.', data: notif });
 });
 
-module.exports = { getDashboard, getAllUsers, toggleUserActive, sendAnnouncement };
+module.exports = { getDashboard, getAllUsers, toggleUserActive, makeAdmin, removeAdmin, sendAnnouncement };

@@ -34,6 +34,11 @@ export default function AdminPage() {
   const [eventLoading, setEventLoading] = useState(false);
   const [eventsFetching, setEventsFetching] = useState(true);
 
+  // Users/Admins state
+  const [users, setUsers] = useState([]);
+  const [usersFetching, setUsersFetching] = useState(true);
+  const [userActionLoading, setUserActionLoading] = useState(null);
+
   // Masjids state
   const [masjidForm, setMasjidForm] = useState(EMPTY_MASJID);
   const [masjids, setMasjids] = useState([]);
@@ -46,7 +51,7 @@ export default function AdminPage() {
     else if (user && user.role !== 'admin') router.replace('/dashboard');
   }, [user]);
 
-  useEffect(() => { fetchEvents(); fetchMasjids(); }, []);
+  useEffect(() => { fetchEvents(); fetchMasjids(); fetchUsers(); }, []);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -89,6 +94,35 @@ export default function AdminPage() {
     if (!confirm(`Delete "${title}"?`)) return;
     try { await api.delete(`/events/${id}`); showToast('Event deleted.'); setEvents((p) => p.filter((e) => e._id !== id)); }
     catch { showToast('Failed to delete.', 'error'); }
+  };
+
+  // ── Users / Admins ──────────────────────────────────────────
+  const fetchUsers = async () => {
+    setUsersFetching(true);
+    try { const res = await api.get('/admin/users'); setUsers(res.data.data || []); }
+    catch { /* silent */ } finally { setUsersFetching(false); }
+  };
+
+  const handleMakeAdmin = async (id, name) => {
+    if (!confirm(`Make "${name}" an admin? They'll be able to manage events and masjid timings.`)) return;
+    setUserActionLoading(id);
+    try {
+      await api.put(`/admin/users/${id}/make-admin`);
+      showToast(`${name} is now an admin! 🛡️`);
+      fetchUsers();
+    } catch (err) { showToast(err.response?.data?.message || 'Failed to update.', 'error'); }
+    finally { setUserActionLoading(null); }
+  };
+
+  const handleRemoveAdmin = async (id, name) => {
+    if (!confirm(`Remove admin access from "${name}"?`)) return;
+    setUserActionLoading(id);
+    try {
+      await api.put(`/admin/users/${id}/remove-admin`);
+      showToast(`${name} is no longer an admin.`);
+      fetchUsers();
+    } catch (err) { showToast(err.response?.data?.message || 'Failed to update.', 'error'); }
+    finally { setUserActionLoading(null); }
   };
 
   // ── Masjids ──────────────────────────────────────────
@@ -163,7 +197,7 @@ export default function AdminPage() {
         {/* Tab bar */}
         <div className="flex gap-2 mb-8 p-1 rounded-2xl w-fit"
           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          {[{ id: 'events', label: '📅 Events' }, { id: 'masjids', label: '🕌 Masjid Timings' }].map((tab) => (
+          {[{ id: 'events', label: '📅 Events' }, { id: 'masjids', label: '🕌 Masjid Timings' }, { id: 'users', label: '🛡️ Admins' }].map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all"
               style={{
@@ -389,6 +423,70 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ══ USERS / ADMINS TAB ══ */}
+        {activeTab === 'users' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-yellow-400">🛡️ Manage Admins</h2>
+                <p className="text-sm text-gray-500 mt-1">Promote trusted users to admin so they can manage events and masjid timings too.</p>
+              </div>
+              <span className="text-sm text-gray-500">{users.length} total</span>
+            </div>
+
+            {usersFetching ? (
+              <div className="space-y-3">
+                {[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-[#0F1620] rounded-2xl animate-pulse border border-gray-800" />)}
+              </div>
+            ) : users.length === 0 ? (
+              <div className="bg-[#0F1620] border border-gray-800 rounded-2xl p-10 text-center text-gray-500">
+                <p className="text-4xl mb-3">👤</p><p>No users yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-w-3xl">
+                {users.map((u) => (
+                  <div key={u._id}
+                    className="bg-[#0F1620] border border-gray-800 hover:border-yellow-700/30 rounded-2xl p-5 transition flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                        style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.1))', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.2)' }}>
+                        {u.name?.[0]?.toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-white truncate">{u.name}</span>
+                          {u.role === 'admin' && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-teal-900/40 text-teal-400 shrink-0">Admin</span>
+                          )}
+                          {u._id === user?._id && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 shrink-0">You</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 truncate">{u.email}{u.city ? ` · ${u.city}` : ''}</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0">
+                      {u.role === 'admin' ? (
+                        u._id !== user?._id && (
+                          <button onClick={() => handleRemoveAdmin(u._id, u.name)} disabled={userActionLoading === u._id}
+                            className="text-xs text-red-500 hover:text-red-400 border border-red-700/40 px-3 py-1.5 rounded-lg transition disabled:opacity-50">
+                            {userActionLoading === u._id ? 'Updating...' : 'Remove Admin'}
+                          </button>
+                        )
+                      ) : (
+                        <button onClick={() => handleMakeAdmin(u._id, u.name)} disabled={userActionLoading === u._id}
+                          className="text-xs text-yellow-500 hover:text-yellow-400 border border-yellow-700/40 px-3 py-1.5 rounded-lg transition disabled:opacity-50">
+                          {userActionLoading === u._id ? 'Updating...' : 'Make Admin'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -14,6 +14,7 @@ const authRoutes         = require('./routes/auth.routes');
 const userRoutes         = require('./routes/user.routes');
 const prayerRoutes       = require('./routes/prayer.routes');
 const eventRoutes        = require('./routes/event.routes');
+const masjidRoutes       = require('./routes/masjid.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const adminRoutes        = require('./routes/admin.routes');
 const { errorHandler }   = require('./middleware/error.middleware');
@@ -63,6 +64,7 @@ app.use('/api/auth',          authRoutes);
 app.use('/api/users',         userRoutes);
 app.use('/api/prayers',       prayerRoutes);
 app.use('/api/events',        eventRoutes);
+app.use('/api/masjids',       masjidRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin',         adminRoutes);
 

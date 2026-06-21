@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import AppLayout from '../components/layout/AppLayout';
 import { PrayerRing, PrayerCard } from '../components/prayer/PrayerComponents';
+import AzkarModal from '../components/prayer/AzkarModal';
 import { Card, StatCard, Skeleton } from '../components/ui';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const [events, setEvents]             = useState([]);
   const [loading, setLoading]           = useState(true);
   const [updatingPrayer, setUpdatingPrayer] = useState(null);
+  const [azkarPrayer, setAzkarPrayer] = useState(null); // prayer name to show azkar for, or null
 
   const fetchData = async () => {
     try {
@@ -58,7 +60,10 @@ export default function DashboardPage() {
     try {
       const res = await api.put(`/prayers/today/${name}`, { status });
       setPrayers(res.data.data.prayers);
-      if (status === 'done')   toast.success('الحمد لله — Prayed ✓', { icon: null });
+      if (status === 'done') {
+        toast.success('الحمد لله — Prayed ✓', { icon: null });
+        setAzkarPrayer(name);
+      }
       if (status === 'missed') toast.error('أستغفر الله — Missed', { icon: null });
       if (status === 'pending') toast('Reset ↺', { icon: null });
     } catch {
@@ -187,6 +192,12 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      <AzkarModal
+        open={!!azkarPrayer}
+        prayerName={azkarPrayer}
+        onClose={() => setAzkarPrayer(null)}
+      />
     </AppLayout>
   );
 }
