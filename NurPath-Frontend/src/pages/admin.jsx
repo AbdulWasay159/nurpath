@@ -285,7 +285,7 @@ export default function AdminPage() {
                             <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-900/50 text-yellow-400 capitalize shrink-0">{ev.category}</span>
                           </div>
                           <p className="text-sm text-gray-400 truncate">🕌 {ev.masjid}{ev.speaker ? ` · 🎤 ${ev.speaker}` : ''}</p>
-                          <p className="text-sm text-gray-500 mt-1">📅 {formatDate(ev.date)} · ⏰ {ev.time}{ev.capacity ? ` · 👥 ${ev.registeredCount}/${ev.capacity}` : ''}</p>
+                          <p className="text-sm text-gray-500 mt-1">📅 {formatDate(ev.date)} · ⏰ {ev.time}{ev.capacity ? ` · 👥 ${ev.attendingCount || 0}/${ev.capacity}` : ''}</p>
                         </div>
                         <button onClick={() => handleDeleteEvent(ev._id, ev.title)}
                           className="text-gray-600 hover:text-red-500 transition text-xl shrink-0 opacity-0 group-hover:opacity-100">✕</button>

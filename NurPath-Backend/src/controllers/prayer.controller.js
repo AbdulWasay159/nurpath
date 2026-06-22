@@ -118,6 +118,7 @@ const getPrayerStats = asyncHandler(async (req, res) => {
 });
 
 // Helper: sync user streak and totals
+// Helper: sync user streak and totals
 async function syncUserStats(userId) {
   const records = await PrayerTracking.find({ user: userId }).sort({ date: -1 });
   let totalPrayed = 0, totalMissed = 0, streak = 0, longest = 0;
@@ -127,10 +128,21 @@ async function syncUserStats(userId) {
     totalMissed += rec.prayers.filter((p) => p.status === 'missed').length;
   });
 
-  // Calculate streak (consecutive days with completionRate > 0)
+  // Calculate streak (consecutive days with completionRate === 100)
+  // Today is only counted if it's already a perfect day — if today is still
+  // in progress (not yet 100%), we don't let it break a streak built on
+  // previous days. The streak should only break once today fully ends
+  // without being completed.
   const today = new Date().toLocaleDateString('en-CA');
+  const todayRecord = records.find((r) => r.date === today);
+  const todayIsComplete = todayRecord && todayRecord.completionRate === 100;
+
+  // Start the lookback from today if it's already perfect, otherwise
+  // start from yesterday so an unfinished "today" doesn't zero the streak.
+  const startOffset = todayIsComplete ? 0 : 1;
+
   let d = new Date();
-  for (let i = 0; i < records.length; i++) {
+  for (let i = startOffset; i < startOffset + records.length; i++) {
     const expectedDate = new Date(d);
     expectedDate.setDate(expectedDate.getDate() - i);
     const expectedStr = expectedDate.toLocaleDateString('en-CA');
@@ -142,6 +154,10 @@ async function syncUserStats(userId) {
       break;
     }
   }
+
+  // If today was already perfect, it's already included in the loop above.
+  // If today is in progress, the streak reflects "as of yesterday" — which
+  // is the correct, non-punishing behavior while the day is still ongoing.
 
   await User.findByIdAndUpdate(userId, {
     totalPrayed,

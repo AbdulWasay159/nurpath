@@ -11,10 +11,10 @@ const getEvents = asyncHandler(async (req, res) => {
   if (category && category !== 'all') filter.category = category;
   if (search) {
     filter.$or = [
-      { title:   { $regex: search, $options: 'i' } },
-      { masjid:  { $regex: search, $options: 'i' } },
+      { title: { $regex: search, $options: 'i' } },
+      { masjid: { $regex: search, $options: 'i' } },
       { speaker: { $regex: search, $options: 'i' } },
-      { topic:   { $regex: search, $options: 'i' } },
+      { topic: { $regex: search, $options: 'i' } },
     ];
   }
 
@@ -120,12 +120,19 @@ const getMyAttendance = asyncHandler(async (req, res) => {
     const att = e.attendees.find((a) => a.user.toString() === userId.toString());
     const isPast = e.date < now;
 
-    if (att?.status === 'attending') {
-      attended++;
-      if (isPast) attendedEvents.push({ _id: e._id, title: e.title, date: e.date, masjid: e.masjid });
-    }
-    if (att?.status === 'not_attending') notAttending++;
-    if (!isPast && att?.status === 'attending') {
+    if (isPast) {
+      // Only events that have already happened count toward the
+      // historical attendance record.
+      if (att?.status === 'attending') {
+        attended++;
+        attendedEvents.push({ _id: e._id, title: e.title, date: e.date, masjid: e.masjid });
+      }
+      if (att?.status === 'not_attending') {
+        notAttending++;
+      }
+    } else if (att?.status === 'attending') {
+      // Future events the user has RSVP'd to are tracked separately as
+      // "upcoming" and never affect the attendance percentage.
       upcoming++;
       upcomingEvents.push({ _id: e._id, title: e.title, date: e.date, masjid: e.masjid });
     }
