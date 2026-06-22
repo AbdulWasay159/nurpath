@@ -1,8 +1,17 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
+} else {
+  console.error('⚠️  RESEND_API_KEY is not set — password reset emails will fail until it is configured.');
+}
 
 const sendPasswordResetEmail = async (to, name, resetUrl) => {
+  if (!resend) {
+    throw new Error('Email service is not configured (missing RESEND_API_KEY).');
+  }
+
   await resend.emails.send({
     from: process.env.EMAIL_FROM || 'NurPath <onboarding@resend.dev>',
     to,
