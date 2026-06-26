@@ -150,6 +150,51 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ══ Quick access: Adhkar + Qibla ══ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-7">
+        <Link href="/adhkar"
+          className="flex items-center justify-between rounded-2xl px-5 py-4 transition group"
+          style={{
+            background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(139,92,246,0.08) 100%)',
+            border: '1px solid rgba(201,168,76,0.2)',
+          }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.2)' }}>
+              <span className="text-lg">📿</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#EDE8D8' }}>Adhkar</p>
+              <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>
+                {new Date().getHours() < 15 ? '🌅 Morning' : '🌙 Evening'} azkaar
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={15} style={{ color: '#C9A84C' }}
+            className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
+        </Link>
+
+        <Link href="/qibla"
+          className="flex items-center justify-between rounded-2xl px-5 py-4 transition group"
+          style={{
+            background: 'linear-gradient(135deg, rgba(45,212,191,0.06) 0%, rgba(59,130,246,0.06) 100%)',
+            border: '1px solid rgba(45,212,191,0.18)',
+          }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(45,212,191,0.1)', border: '1px solid rgba(45,212,191,0.18)' }}>
+              <span className="text-lg">🧭</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#EDE8D8' }}>Qibla Finder</p>
+              <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>Direction to Kaaba</p>
+            </div>
+          </div>
+          <ArrowRight size={15} style={{ color: '#2DD4BF' }}
+            className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
+        </Link>
+      </div>
+
       {/* ══ Stats row ══ */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-7">
         {loading

@@ -1,32 +1,48 @@
-# Edit Past Prayer History — Files to Replace
+# Forgot Password Feature — Files to Replace
 
 ## How to apply
-Copy the 3 files over their matching paths in your repo. No new npm packages needed.
+1. Unzip this into a scratch folder.
+2. Copy each file over the matching path in your repo (same folder structure: `NurPath-Backend/...`, `NurPath-Frontend/...`).
+3. In `NurPath-Backend`, run:
+   ```
+   npm install resend
+   ```
+4. Add to your **real** `NurPath-Backend/.env** (not the .env.example included here — that's just a reference):
+   ```
+   RESEND_API_KEY=re_your_api_key_here
+   EMAIL_FROM=NurPath <onboarding@resend.dev>
+   ```
+   Get a free API key at https://resend.com (no domain verification needed to start — `onboarding@resend.dev` works out of the box).
 
 ## Files included
 
 ### Backend (full replacements)
-- `NurPath-Backend/src/controllers/prayer.controller.js`
-  - NEW: `updatePastPrayerStatus` — handles `PUT /api/prayers/:date/:prayerName`
-  - Rejects future dates, today, and anything older than 7 days
-  - FIXED: `syncUserStats` longest-streak bug — old code computed `longest` inside the
-    same backward walk as `current`, so it could never exceed `current`. Now does two
-    separate passes: full ascending scan for all-time best, backward walk for current active.
+- `NurPath-Backend/package.json` — added `resend` dependency
+- `NurPath-Backend/.env.example` — reference only, shows new vars needed
+- `NurPath-Backend/src/models/User.model.js` — added reset token + lockout fields/methods
+- `NurPath-Backend/src/controllers/auth.controller.js` — added `forgotPassword`, `resetPassword`, lockout logic in `login`
+- `NurPath-Backend/src/routes/auth.routes.js` — added `/forgot-password` and `/reset-password/:token` routes
+- `NurPath-Backend/src/server.js` — added a dedicated rate limiter for `/forgot-password` (3/hour)
 
-- `NurPath-Backend/src/routes/prayer.routes.js`
-  - NEW route: `PUT /:date/:prayerName` added AFTER `/today/:prayerName` (order matters
-    so Express matches the specific /today/* route first)
+### Backend (new file)
+- `NurPath-Backend/src/utils/email.js` — Resend email sender for the reset link
 
-### Frontend (full replacement)
-- `NurPath-Frontend/src/pages/history.jsx`
-  - Rows within the last 7 days (including today): tap-to-cycle interactive prayer cards
-    in the expanded view, pencil indicator in row header
-  - Rows older than 7 days: read-only cards with 🔒 lock explanation
-  - Local state updates instantly from server response (completionRate + prayers array)
-  - Errors revert to a full refetch so the UI stays accurate
-  - Today routes to `/prayers/today/:prayerName`; past days route to `/prayers/:date/:prayerName`
+### Frontend (full replacements)
+- `NurPath-Frontend/src/context/AuthContext.jsx` — added `forgotPassword`, `resetPassword` methods
+- `NurPath-Frontend/src/pages/login.jsx` — added "Forgot password?" link
 
-## What was NOT changed
-- Dashboard prayer tracking (`/today/:prayerName`) — untouched
-- Stats page — streak numbers will now be more accurate due to the syncUserStats fix
-- No new environment variables or npm packages needed
+### Frontend (new files)
+- `NurPath-Frontend/src/pages/forgot-password.jsx` — email entry page (includes a honeypot anti-bot field)
+- `NurPath-Frontend/src/pages/reset-password/[token].jsx` — new password entry page
+
+## What this adds
+- Forgot/reset password flow with 1-hour expiring, hashed tokens
+- Email enumeration protection (same response whether the email exists or not)
+- Rate limiting on the forgot-password endpoint (3/hour/IP)
+- Honeypot field on the forgot-password form (free bot deterrent)
+- Account lockout after 5 failed logins (15 min), auto-cleared on successful reset
+
+## Not touched
+- Your actual `.env` file (only `.env.example` is included as a reference)
+- `change-password` flow (unchanged — still requires current password, for logged-in users)
+- No email verification on signup, no "logout everywhere" — out of scope for this pass
