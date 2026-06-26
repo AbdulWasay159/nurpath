@@ -141,7 +141,7 @@ export const ADHKAR = [
     arabic:
       'يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ',
     transliteration:
-      'Ya Ḥayyu ya Qayyūmu biraḥmatika astaghīṡu, aṡliḥ lī sha'nī kullahū wa lā takilnī ilā nafsī ṭarfata 'ainin.',
+      'Ya Ḥayyu ya Qayyūmu biraḥmatika astaghīṡu, aṡliḥ lī sha\'nī kullahū wa lā takilnī ilā nafsī ṭarfata \'ainin.',
     translation:
       "O Ever Living One, O Eternal One, by Your mercy I call on You to set right all my affairs. Do not place me in charge of my soul even for the blinking of an eye (i.e. a moment).",
     count: 1,
@@ -296,7 +296,7 @@ export const ADHKAR = [
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِنْ شَرِّ مَا خَلَقَ ۝ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ',
     transliteration:
-      'Bismillāhir-Raḥmānir-Raḥīm. Qul a\'ūzu bi-rabbil-falaq. Min sharri mā khalaq. Wa min sharri ghāsiqin iẕā waqab. Wa min sharrin-naffāṡāti fil-'uqad. Wa min sharri ḥāsidin iẕā ḥasad.',
+      'Bismillāhir-Raḥmānir-Raḥīm. Qul a\'ūzu bi-rabbil-falaq. Min sharri mā khalaq. Wa min sharri ghāsiqin iẕā waqab. Wa min sharrin-naffāṡāti fil-\'uqad. Wa min sharri ḥāsidin iẕā ḥasad.',
     translation:
       'In the Name of Allāh, the Most Gracious, the Most Merciful. Say: I seek refuge with (Allāh) the Lord of the daybreak, from the evil of what He has created, and from the evil of the darkening (night) as it comes with its darkness, and from the evil of those who practice witchcraft when they blow in the knots, and from the evil of the envier when he envies.',
     count: 3,
