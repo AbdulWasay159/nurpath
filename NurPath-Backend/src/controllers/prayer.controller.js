@@ -117,55 +117,123 @@ const getPrayerStats = asyncHandler(async (req, res) => {
   res.json({ success: true, data: stats });
 });
 
-// Helper: sync user streak and totals
+// PUT /api/prayers/:date/:prayerName  — edit a past prayer record
+const updatePastPrayerStatus = asyncHandler(async (req, res) => {
+  const { date, prayerName } = req.params;
+  const { status, method, notes } = req.body;
+
+  // Validate date format YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ success: false, message: 'Invalid date format. Use YYYY-MM-DD.' });
+  }
+
+  // Reject today or future dates — use the /today route for those
+  const today = new Date().toLocaleDateString('en-CA');
+  if (date >= today) {
+    return res.status(400).json({ success: false, message: 'Use the /today route to edit today\'s prayers.' });
+  }
+
+  if (!PRAYER_NAMES.includes(prayerName)) {
+    return res.status(400).json({ success: false, message: 'Invalid prayer name.' });
+  }
+  if (!['pending', 'done', 'missed', 'qada'].includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status value.' });
+  }
+
+  let record = await PrayerTracking.findOne({ user: req.user._id, date });
+  if (!record) {
+    record = new PrayerTracking({
+      user: req.user._id,
+      date,
+      prayers: freshPrayers(),
+    });
+  }
+
+  const prayer = record.prayers.find((p) => p.name === prayerName);
+  if (!prayer) {
+    return res.status(404).json({ success: false, message: 'Prayer entry not found.' });
+  }
+
+  prayer.status = status;
+  prayer.markedAt = status !== 'pending' ? new Date() : null;
+  if (method !== undefined) prayer.method = method;
+  if (notes !== undefined) prayer.notes = notes;
+
+  await record.save();
+  await syncUserStats(req.user._id);
+
+  res.json({ success: true, message: 'Past prayer updated.', data: record });
+});
+
 // Helper: sync user streak and totals
 async function syncUserStats(userId) {
   const records = await PrayerTracking.find({ user: userId }).sort({ date: -1 });
-  let totalPrayed = 0, totalMissed = 0, streak = 0, longest = 0;
+  let totalPrayed = 0, totalMissed = 0, currentStreak = 0, longestStreak = 0;
 
   records.forEach((rec) => {
     totalPrayed += rec.prayers.filter((p) => p.status === 'done' || p.status === 'qada').length;
     totalMissed += rec.prayers.filter((p) => p.status === 'missed').length;
   });
 
-  // Calculate streak (consecutive days with completionRate === 100)
-  // Today is only counted if it's already a perfect day — if today is still
-  // in progress (not yet 100%), we don't let it break a streak built on
-  // previous days. The streak should only break once today fully ends
-  // without being completed.
+  // Calculate current streak (consecutive perfect days going back from today)
+  // If today is still in-progress, start from yesterday so an unfinished day
+  // doesn't zero an existing streak.
   const today = new Date().toLocaleDateString('en-CA');
   const todayRecord = records.find((r) => r.date === today);
   const todayIsComplete = todayRecord && todayRecord.completionRate === 100;
-
-  // Start the lookback from today if it's already perfect, otherwise
-  // start from yesterday so an unfinished "today" doesn't zero the streak.
   const startOffset = todayIsComplete ? 0 : 1;
 
   let d = new Date();
-  for (let i = startOffset; i < startOffset + records.length; i++) {
+  for (let i = startOffset; i < startOffset + records.length + 1; i++) {
     const expectedDate = new Date(d);
     expectedDate.setDate(expectedDate.getDate() - i);
     const expectedStr = expectedDate.toLocaleDateString('en-CA');
     const rec = records.find((r) => r.date === expectedStr);
     if (rec && rec.completionRate === 100) {
-      streak++;
-      if (streak > longest) longest = streak;
+      currentStreak++;
     } else {
       break;
     }
   }
 
-  // If today was already perfect, it's already included in the loop above.
-  // If today is in progress, the streak reflects "as of yesterday" — which
-  // is the correct, non-punishing behavior while the day is still ongoing.
+  // Calculate longest streak by scanning all records chronologically
+  // (separate pass — not nested inside the current-streak loop)
+  const sortedAsc = [...records].sort((a, b) => (a.date > b.date ? 1 : -1));
+  let runningStreak = 0;
+  let prevDate = null;
+  for (const rec of sortedAsc) {
+    if (rec.completionRate === 100) {
+      if (prevDate) {
+        // Check if this day is exactly one day after the previous perfect day
+        const prev = new Date(prevDate);
+        prev.setDate(prev.getDate() + 1);
+        const expectedNext = prev.toLocaleDateString('en-CA');
+        if (rec.date === expectedNext) {
+          runningStreak++;
+        } else {
+          runningStreak = 1; // gap — restart
+        }
+      } else {
+        runningStreak = 1;
+      }
+      prevDate = rec.date;
+      if (runningStreak > longestStreak) longestStreak = runningStreak;
+    } else {
+      runningStreak = 0;
+      prevDate = null;
+    }
+  }
+
+  // Longest must be at least as big as current
+  longestStreak = Math.max(longestStreak, currentStreak);
 
   await User.findByIdAndUpdate(userId, {
     totalPrayed,
     totalMissed,
-    'streak.current': streak,
-    'streak.longest': Math.max(longest, streak),
+    'streak.current': currentStreak,
+    'streak.longest': longestStreak,
     'streak.lastActiveDate': today,
   });
 }
 
-module.exports = { getTodayPrayers, updatePrayerStatus, getPrayerHistory, getPrayerStats };
+module.exports = { getTodayPrayers, updatePrayerStatus, updatePastPrayerStatus, getPrayerHistory, getPrayerStats };

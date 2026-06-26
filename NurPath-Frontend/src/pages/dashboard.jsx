@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const {
     formattedTimes, nextPrayer, greeting, hadith,
-    hijri, islamicOccasion, locationName, countdown, locationLoading,
+    hijri, islamicOccasion, locationName,
   } = usePrayerTimes();
 
   const [prayers, setPrayers]           = useState([]);
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate" style={{ color: '#EDE8D8' }}>{ev.title}</p>
                   <p className="text-xs mt-0.5 truncate" style={{ color: '#7A8FA8' }}>
-                    {ev.masjid} · {format(new Date(ev.date), 'EEE, MMM d')} at {ev.time}
+                    {ev.masjid} · {format(new Date(ev.date), 'EEE, MMM d')} at {ev.time && /[AaPp][Mm]/.test(ev.time) ? ev.time : ev.time ? (() => { try { return new Date(`2000-01-01T${ev.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); } catch { return ev.time; } })() : ''}
                   </p>
                 </div>
                 <Link href={`/events/${ev._id}`} className="text-xs font-medium flex-shrink-0" style={{ color: '#C9A84C' }}>

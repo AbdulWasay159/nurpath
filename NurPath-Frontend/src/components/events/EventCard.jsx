@@ -15,6 +15,28 @@ const CATEGORY_COLORS = {
   other:       { bg: 'rgba(107,114,128,0.12)',color: '#9CA3AF', label: 'Other' },
 };
 
+/**
+ * Normalise event.time to a consistent 12-hour display string.
+ * Accepts both "13:00" (24 h from <input type="time">) and
+ * "01:00 PM" (legacy seeded strings) and anything in between.
+ */
+function formatEventTime(time) {
+  if (!time) return '';
+  // Already looks like a 12-hour string (contains AM/PM) — return as-is
+  if (/[AaPp][Mm]/.test(time)) return time;
+  // Looks like HH:MM or H:MM (24-hour)
+  if (/^\d{1,2}:\d{2}$/.test(time.trim())) {
+    try {
+      return new Date(`2000-01-01T${time.trim()}`).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch { /* fall through */ }
+  }
+  return time; // Unknown format — render as-is rather than breaking
+}
+
 export default function EventCard({ event, showActions, onEdit, onDelete }) {
   const cat = CATEGORY_COLORS[event.category] || CATEGORY_COLORS.other;
   const isPastEvent = isPast(new Date(event.date));
@@ -66,7 +88,7 @@ export default function EventCard({ event, showActions, onEdit, onDelete }) {
           </div>
           <div className="flex items-center gap-2 text-sm" style={{ color: '#7A8FA8' }}>
             <Clock size={14} style={{ color: '#C9A84C' }} />
-            <span>{event.time}</span>
+            <span>{formatEventTime(event.time)}</span>
             <span className="ml-2 text-xs px-2 py-0.5 rounded-full"
               style={{ background: isPastEvent ? 'rgba(107,114,128,0.15)' : 'rgba(45,212,191,0.12)', color: isPastEvent ? '#9CA3AF' : '#2DD4BF' }}>
               {countdown}

@@ -1,15 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  calculatePrayerTimes,
   getNextPrayer,
   getIslamicGreeting,
   getCurrentPrayerHadith,
   formatPrayerTime,
 } from '../lib/prayerTimes';
-import { gregorianToHijri, getIslamicOccasion } from '../lib/hijri';
+import { getIslamicOccasion } from '../lib/hijri';
 
 // Default: Hyderabad, India — used if geolocation denied
 const DEFAULT_COORDS = { lat: 17.3850, lng: 78.4867, city: 'Hyderabad' };
+
+// Returns a YYYY-MM-DD string for today
+function todayStr() {
+  return new Date().toLocaleDateString('en-CA');
+}
 
 export function usePrayerTimes() {
   const [coords, setCoords] = useState(null);
@@ -23,6 +27,9 @@ export function usePrayerTimes() {
   const [now, setNow] = useState(new Date());
   const [locationLoading, setLocationLoading] = useState(true);
   const [countdown, setCountdown] = useState('');
+  // Track which calendar date the current times were fetched for so we
+  // can detect midnight crossings and re-fetch automatically.
+  const [fetchedDate, setFetchedDate] = useState(null);
 
   // Tick every second for live countdown
   useEffect(() => {
@@ -56,17 +63,17 @@ export function usePrayerTimes() {
     setLocationLoading(false);
   }
 
-  // Recalculate prayer times whenever coords or date changes
+  // Recalculate prayer times whenever coords change OR the calendar date changes
   useEffect(() => {
     if (!coords) return;
 
     const today = new Date();
     const fetchTimes = async () => {
       try {
-        const todayStr = today.toLocaleDateString('en-GB').split('/').join('-');
+        const todayDateStr = today.toLocaleDateString('en-GB').split('/').join('-');
 
         const res = await fetch(
-          `https://api.aladhan.com/v1/timings/${todayStr}?latitude=${coords.lat}&longitude=${coords.lng}&method=17`
+          `https://api.aladhan.com/v1/timings/${todayDateStr}?latitude=${coords.lat}&longitude=${coords.lng}&method=17`
         );
 
         const data = await res.json();
@@ -96,6 +103,8 @@ export function usePrayerTimes() {
             maghrib: new Date(`${today.toDateString()} ${data.data.timings.Maghrib}`),
             isha: new Date(`${today.toDateString()} ${data.data.timings.Isha}`),
           });
+
+          setFetchedDate(todayStr());
         }
       } catch (err) {
         console.error(err);
@@ -104,9 +113,18 @@ export function usePrayerTimes() {
 
     fetchTimes();
 
-    // Hijri
+  }, [coords, fetchedDate]); // re-runs when coords change OR when fetchedDate is reset
 
-  }, [coords]);
+  // Detect midnight crossing: if the calendar date has advanced past the date
+  // we last fetched for, reset fetchedDate to trigger a new API call above.
+  useEffect(() => {
+    const currentDate = todayStr();
+    if (fetchedDate && fetchedDate !== currentDate) {
+      // New day — clear times and trigger a fresh fetch
+      setTimes(null);
+      setFetchedDate(null);
+    }
+  }, [now, fetchedDate]); // runs every second via 'now' tick
 
   // Update live values every second
   useEffect(() => {

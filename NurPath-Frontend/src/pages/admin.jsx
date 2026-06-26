@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import AppLayout from '../components/layout/AppLayout';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -22,13 +21,10 @@ const inp = "w-full p-3.5 rounded-xl bg-black/60 border border-gray-700 focus:bo
 const lbl = "block text-xs text-gray-400 uppercase tracking-widest mb-1.5";
 
 export default function AdminPage() {
-  const router = useRouter();
   const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState('events');
   const [toast, setToast] = useState(null);
-
-  // Events state
   const [eventForm, setEventForm] = useState(EMPTY_EVENT);
   const [events, setEvents] = useState([]);
   const [eventLoading, setEventLoading] = useState(false);
@@ -45,11 +41,6 @@ export default function AdminPage() {
   const [masjidLoading, setMasjidLoading] = useState(false);
   const [masjidsFetching, setMasjidsFetching] = useState(true);
   const [editingMasjid, setEditingMasjid] = useState(null);
-
-  useEffect(() => {
-    if (user === null) router.replace('/login');
-    else if (user && user.role !== 'admin') router.replace('/dashboard');
-  }, [user]);
 
   useEffect(() => { fetchEvents(); fetchMasjids(); fetchUsers(); }, []);
 
@@ -174,10 +165,8 @@ export default function AdminPage() {
     catch { showToast('Failed to delete.', 'error'); }
   };
 
-  if (!user || user.role !== 'admin') return null;
-
   return (
-    <AppLayout>
+    <AppLayout requireAdmin>
       <div className="min-h-screen p-6 md:p-10 text-white">
 
         {/* Toast */}

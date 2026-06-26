@@ -152,14 +152,8 @@ export function getNextPrayer(times, now = new Date()) {
     }
   }
 
-  // Past Isha — return tomorrow's Fajr
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const { fajr: tomorrowFajr } = calculatePrayerTimes(
-    /* we don't have lat/lng here, just return fajr label */
-    0, 0, tomorrow
-  ) || {};
-
+  // Past Isha — return tomorrow's Fajr label (we don't have coords here,
+  // so we can't compute the exact time; the hook will re-fetch at midnight anyway)
   return {
     name: 'fajr',
     label: 'Fajr',
