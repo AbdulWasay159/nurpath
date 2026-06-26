@@ -4,25 +4,23 @@ import Link from 'next/link';
 import AppLayout from '../../components/layout/AppLayout';
 import { Search, BookOpen } from 'lucide-react';
 
-const REVELATION_COLORS = {
-  makkah:  { bg: 'rgba(201,168,76,0.12)',  color: '#C9A84C',  label: 'Makki'  },
-  madinah: { bg: 'rgba(45,212,191,0.12)',  color: '#2DD4BF',  label: 'Madani' },
-};
-
 // ── Surah Card ────────────────────────────────────────────────────────────────
 function SurahCard({ chapter, index }) {
-  const rev = REVELATION_COLORS[chapter.revelation_place] || REVELATION_COLORS.makkah;
+  const isMakki = chapter.revelationType === 'Meccan';
+  const revBg    = isMakki ? 'rgba(201,168,76,0.12)'  : 'rgba(45,212,191,0.12)';
+  const revColor = isMakki ? '#C9A84C'                : '#2DD4BF';
+  const revLabel = isMakki ? 'Makki'                  : 'Madani';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.02, 0.6) }}
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -2 }}
     >
       <Link
-        href={`/quran/${chapter.id}`}
-        className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-all group"
+        href={`/quran/${chapter.number}`}
+        className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-all"
         style={{
           background: '#0F1620',
           border: '1px solid rgba(201,168,76,0.1)',
@@ -30,41 +28,30 @@ function SurahCard({ chapter, index }) {
           display: 'flex',
         }}
       >
-        {/* Number circle */}
+        {/* Number */}
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
-          style={{
-            background: 'rgba(201,168,76,0.1)',
-            border: '1px solid rgba(201,168,76,0.2)',
-            color: '#C9A84C',
-          }}
+          style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', color: '#C9A84C' }}
         >
-          {chapter.id}
+          {chapter.number}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-            <span className="font-semibold text-sm" style={{ color: '#EDE8D8' }}>
-              {chapter.name_simple}
-            </span>
-            <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{ background: rev.bg, color: rev.color }}
-            >
-              {rev.label}
+            <span className="font-semibold text-sm" style={{ color: '#EDE8D8' }}>{chapter.englishName}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: revBg, color: revColor }}>
+              {revLabel}
             </span>
           </div>
           <span className="text-xs" style={{ color: '#7A8FA8' }}>
-            {chapter.translated_name?.name} · {chapter.verses_count} ayahs
+            {chapter.englishNameTranslation} · {chapter.numberOfAyahs} ayahs
           </span>
         </div>
 
         {/* Arabic name */}
         <div className="text-right flex-shrink-0">
-          <p className="font-amiri text-xl leading-none" style={{ color: '#C9A84C' }}>
-            {chapter.name_arabic}
-          </p>
+          <p className="font-amiri text-xl leading-none" style={{ color: '#C9A84C' }}>{chapter.name}</p>
         </div>
       </Link>
     </motion.div>
@@ -74,15 +61,19 @@ function SurahCard({ chapter, index }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function QuranIndexPage() {
   const [chapters, setChapters] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all'); // 'all' | 'makkah' | 'madinah'
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState('');
+  const [search, setSearch]     = useState('');
+  const [filter, setFilter]     = useState('all');
 
   useEffect(() => {
-    fetch('https://api.quran.com/api/v4/chapters?language=en')
+    // Calls our own Next.js proxy — no CORS issues
+    fetch('/api/quran/chapters')
       .then((r) => r.json())
-      .then((data) => setChapters(data.chapters || []))
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setChapters(data.chapters || []);
+      })
       .catch(() => setError('Failed to load surahs. Please check your connection.'))
       .finally(() => setLoading(false));
   }, []);
@@ -90,14 +81,17 @@ export default function QuranIndexPage() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return chapters.filter((c) => {
-      const matchesFilter = filter === 'all' || c.revelation_place === filter;
+      const matchesFilter =
+        filter === 'all' ||
+        (filter === 'makkah'  && c.revelationType === 'Meccan') ||
+        (filter === 'madinah' && c.revelationType === 'Medinan');
       if (!q) return matchesFilter;
       return (
         matchesFilter && (
-          c.name_simple.toLowerCase().includes(q) ||
-          c.name_arabic.includes(q) ||
-          c.translated_name?.name?.toLowerCase().includes(q) ||
-          String(c.id).includes(q)
+          c.englishName.toLowerCase().includes(q) ||
+          c.name.includes(q) ||
+          c.englishNameTranslation.toLowerCase().includes(q) ||
+          String(c.number).includes(q)
         )
       );
     });
@@ -111,9 +105,7 @@ export default function QuranIndexPage() {
           كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ
         </p>
         <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>Al-Quran</h1>
-        <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>
-          114 Surahs · Sahih International translation
-        </p>
+        <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>114 Surahs · Sahih International</p>
       </div>
 
       {/* Search + filter */}
@@ -128,8 +120,7 @@ export default function QuranIndexPage() {
             className="input-field pl-10"
           />
         </div>
-
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {[
             { id: 'all',     label: 'All Surahs' },
             { id: 'makkah',  label: 'Makki' },
@@ -159,7 +150,14 @@ export default function QuranIndexPage() {
       {/* Error */}
       {error && (
         <div className="rounded-2xl p-5 mb-6 text-center" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
-          <p className="text-sm" style={{ color: '#EF4444' }}>⚠ {error}</p>
+          <p className="text-sm mb-3" style={{ color: '#EF4444' }}>⚠ {error}</p>
+          <button
+            onClick={() => { setError(''); setLoading(true); fetch('/api/quran/chapters').then(r=>r.json()).then(d=>setChapters(d.chapters||[])).catch(()=>setError('Failed to load surahs.')).finally(()=>setLoading(false)); }}
+            className="text-xs px-4 py-2 rounded-xl"
+            style={{ background: 'rgba(201,168,76,0.12)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.25)' }}
+          >
+            Try Again
+          </button>
         </div>
       )}
 
@@ -174,20 +172,18 @@ export default function QuranIndexPage() {
 
       {/* Surah list */}
       {!loading && !error && (
-        <>
-          {filtered.length === 0 ? (
-            <div className="rounded-2xl p-16 text-center" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-              <BookOpen size={40} className="mx-auto mb-4" style={{ color: '#3A4A60' }} />
-              <p className="text-sm" style={{ color: '#7A8FA8' }}>No surahs match your search.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filtered.map((chapter, i) => (
-                <SurahCard key={chapter.id} chapter={chapter} index={i} />
-              ))}
-            </div>
-          )}
-        </>
+        filtered.length === 0 ? (
+          <div className="rounded-2xl p-16 text-center" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+            <BookOpen size={40} className="mx-auto mb-4" style={{ color: '#3A4A60' }} />
+            <p className="text-sm" style={{ color: '#7A8FA8' }}>No surahs match your search.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filtered.map((chapter, i) => (
+              <SurahCard key={chapter.number} chapter={chapter} index={i} />
+            ))}
+          </div>
+        )
       )}
     </AppLayout>
   );

@@ -15,33 +15,28 @@ function VerseCard({ verse, showTranslation, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.015, 0.8) }}
       className="rounded-2xl p-5"
-      style={{
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(201,168,76,0.08)',
-      }}
+      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(201,168,76,0.08)' }}
     >
+      {/* Verse number + Arabic */}
       <div className="flex items-start gap-4">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold mt-1"
-          style={{
-            background: 'rgba(201,168,76,0.1)',
-            border: '1px solid rgba(201,168,76,0.2)',
-            color: '#C9A84C',
-          }}
+          style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', color: '#C9A84C' }}
         >
-          {verse.verse_number}
+          {verse.number}
         </div>
         <p
           className="font-amiri flex-1 text-right leading-loose"
           dir="rtl"
           style={{ color: '#EDE8D8', fontSize: '1.45rem', lineHeight: '2.2' }}
         >
-          {verse.text_uthmani}
+          {verse.arabic}
         </p>
       </div>
 
+      {/* Translation */}
       <AnimatePresence>
-        {showTranslation && verse.translations?.[0]?.text && (
+        {showTranslation && verse.translation && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -51,14 +46,10 @@ function VerseCard({ verse, showTranslation, index }) {
           >
             <p
               className="text-sm leading-relaxed mt-4 pt-4"
-              style={{
-                color: '#9CA8BD',
-                borderTop: '1px solid rgba(255,255,255,0.05)',
-              }}
-              dangerouslySetInnerHTML={{
-                __html: verse.translations[0].text.replace(/<[^>]*>/g, ''),
-              }}
-            />
+              style={{ color: '#9CA8BD', borderTop: '1px solid rgba(255,255,255,0.05)' }}
+            >
+              {verse.translation}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -68,14 +59,14 @@ function VerseCard({ verse, showTranslation, index }) {
 
 // ── Page ───────────────────────────────────────────────────────────────────
 export default function SurahReaderPage() {
-  const router = useRouter();
-  const { id } = router.query;
+  const router  = useRouter();
+  const { id }  = router.query;
   const surahId = parseInt(id);
 
-  const [chapter, setChapter] = useState(null);
-  const [verses, setVerses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [chapter, setChapter]               = useState(null);
+  const [verses, setVerses]                 = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [error, setError]                   = useState('');
   const [showTranslation, setShowTranslation] = useState(true);
 
   const fetchSurah = useCallback(async (sid) => {
@@ -85,40 +76,14 @@ export default function SurahReaderPage() {
     setChapter(null);
 
     try {
-      const [chapterRes, versesRes] = await Promise.all([
-        fetch(`https://api.quran.com/api/v4/chapters/${sid}?language=en`),
-        fetch(
-          `https://api.quran.com/api/v4/verses/by_chapter/${sid}` +
-          `?translations=131&fields=text_uthmani&per_page=300&page=1`
-        ),
-      ]);
+      // Calls our own Next.js proxy — server fetches alquran.cloud, no CORS
+      const res  = await fetch(`/api/quran/${sid}`);
+      const data = await res.json();
 
-      const chapterData = await chapterRes.json();
-      const versesData  = await versesRes.json();
+      if (!res.ok || data.error) throw new Error(data.error || 'API error');
 
-      if (!chapterData.chapter || !versesData.verses) {
-        throw new Error('Invalid API response');
-      }
-
-      setChapter(chapterData.chapter);
-
-      let allVerses = versesData.verses;
-      const meta = versesData.meta;
-      if (meta.total_pages > 1) {
-        const extraFetches = [];
-        for (let p = 2; p <= meta.total_pages; p++) {
-          extraFetches.push(
-            fetch(
-              `https://api.quran.com/api/v4/verses/by_chapter/${sid}` +
-              `?translations=131&fields=text_uthmani&per_page=300&page=${p}`
-            ).then((r) => r.json())
-          );
-        }
-        const extras = await Promise.all(extraFetches);
-        extras.forEach((e) => { if (e.verses) allVerses = allVerses.concat(e.verses); });
-      }
-
-      setVerses(allVerses);
+      setChapter(data.chapter);
+      setVerses(data.verses);
     } catch {
       setError('Failed to load surah. Please check your connection and try again.');
     } finally {
@@ -127,14 +92,13 @@ export default function SurahReaderPage() {
   }, []);
 
   useEffect(() => {
-    if (surahId && surahId >= 1 && surahId <= 114) {
-      fetchSurah(surahId);
-    }
+    if (surahId && surahId >= 1 && surahId <= 114) fetchSurah(surahId);
   }, [surahId, fetchSurah]);
 
   const hasPrev = surahId > 1;
   const hasNext = surahId < 114;
 
+  // ── Loading skeleton ──
   if (loading) {
     return (
       <AppLayout>
@@ -152,10 +116,11 @@ export default function SurahReaderPage() {
     );
   }
 
+  // ── Error state ──
   if (error) {
     return (
       <AppLayout>
-        <Link href="/quran" className="inline-flex items-center gap-2 text-sm mb-6 transition-colors hover:text-yellow-400" style={{ color: '#7A8FA8' }}>
+        <Link href="/quran" className="inline-flex items-center gap-2 text-sm mb-6" style={{ color: '#7A8FA8' }}>
           <ArrowLeft size={15} /> Back to Surahs
         </Link>
         <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -164,7 +129,7 @@ export default function SurahReaderPage() {
           <p className="text-sm mb-6" style={{ color: '#7A8FA8' }}>{error}</p>
           <button
             onClick={() => fetchSurah(surahId)}
-            className="px-6 py-2.5 rounded-xl text-sm font-semibold transition"
+            className="px-6 py-2.5 rounded-xl text-sm font-semibold"
             style={{ background: 'rgba(201,168,76,0.15)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.3)' }}
           >
             Try Again
@@ -176,18 +141,17 @@ export default function SurahReaderPage() {
 
   if (!chapter) return null;
 
-  const revelationLabel = chapter.revelation_place === 'makkah' ? 'Makki' : 'Madani';
-  const revColor = chapter.revelation_place === 'makkah' ? '#C9A84C' : '#2DD4BF';
-  const revBg    = chapter.revelation_place === 'makkah' ? 'rgba(201,168,76,0.12)' : 'rgba(45,212,191,0.12)';
+  const isMakki      = chapter.revelationType === 'Meccan';
+  const revLabel     = isMakki ? 'Makki'               : 'Madani';
+  const revColor     = isMakki ? '#C9A84C'             : '#2DD4BF';
+  const revBg        = isMakki ? 'rgba(201,168,76,0.12)' : 'rgba(45,212,191,0.12)';
+  // Surah 9 (At-Tawbah) has no Bismillah
   const showBismillah = chapter.id !== 9;
 
   return (
     <AppLayout>
-      <Link
-        href="/quran"
-        className="inline-flex items-center gap-2 text-sm mb-6 transition-colors hover:text-yellow-400"
-        style={{ color: '#7A8FA8' }}
-      >
+      {/* Back */}
+      <Link href="/quran" className="inline-flex items-center gap-2 text-sm mb-6" style={{ color: '#7A8FA8' }}>
         <ArrowLeft size={15} /> All Surahs
       </Link>
 
@@ -199,15 +163,15 @@ export default function SurahReaderPage() {
           border: '1px solid rgba(201,168,76,0.15)',
         }}
       >
-        <p className="font-amiri text-5xl mb-2" style={{ color: '#C9A84C' }}>{chapter.name_arabic}</p>
-        <p className="font-amiri text-xl mb-1" style={{ color: '#EDE8D8' }}>{chapter.name_simple}</p>
-        <p className="text-sm mb-3" style={{ color: '#7A8FA8' }}>{chapter.translated_name?.name}</p>
+        <p className="font-amiri text-5xl mb-2" style={{ color: '#C9A84C' }}>{chapter.arabicName}</p>
+        <p className="font-amiri text-xl mb-1" style={{ color: '#EDE8D8' }}>{chapter.name}</p>
+        <p className="text-sm mb-3" style={{ color: '#7A8FA8' }}>{chapter.meaning}</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{ background: revBg, color: revColor }}>
-            {revelationLabel}
+            {revLabel}
           </span>
           <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7A8FA8' }}>
-            {chapter.verses_count} Ayahs
+            {chapter.versesCount} Ayahs
           </span>
           <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7A8FA8' }}>
             Surah {chapter.id}
@@ -246,7 +210,7 @@ export default function SurahReaderPage() {
       {/* Verses */}
       <div className="space-y-3 mb-10">
         {verses.map((verse, i) => (
-          <VerseCard key={verse.id} verse={verse} showTranslation={showTranslation} index={i} />
+          <VerseCard key={verse.number} verse={verse} showTranslation={showTranslation} index={i} />
         ))}
       </div>
 
@@ -255,21 +219,21 @@ export default function SurahReaderPage() {
         {hasPrev ? (
           <Link
             href={`/quran/${surahId - 1}`}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition hover:-translate-x-0.5"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition"
             style={{ background: 'rgba(201,168,76,0.08)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.2)' }}
           >
             <ChevronLeft size={16} /> Previous Surah
           </Link>
         ) : <div />}
 
-        <Link href="/quran" className="text-xs px-4 py-2 rounded-xl transition" style={{ color: '#7A8FA8', background: 'rgba(255,255,255,0.03)' }}>
+        <Link href="/quran" className="text-xs px-4 py-2 rounded-xl" style={{ color: '#7A8FA8', background: 'rgba(255,255,255,0.03)' }}>
           All Surahs
         </Link>
 
         {hasNext ? (
           <Link
             href={`/quran/${surahId + 1}`}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition hover:translate-x-0.5"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition"
             style={{ background: 'rgba(201,168,76,0.08)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.2)' }}
           >
             Next Surah <ChevronRight size={16} />
