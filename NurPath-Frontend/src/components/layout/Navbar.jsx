@@ -7,7 +7,7 @@ import { gregorianToHijri } from '../../lib/hijri';
 import { usePrayerTimes } from '../../hooks/usePrayerTimes';
 import {
   LayoutDashboard, Calendar, BookOpen, BarChart2,
-  User, LogOut, Menu, X, Bell, ShieldCheck, Moon, Clock, BookMarked, Compass,
+  User, LogOut, Menu, X, Bell, ShieldCheck, Moon, Clock, BookMarked, Compass, BookText,
 } from 'lucide-react';
 
 const navItems = [
@@ -15,6 +15,7 @@ const navItems = [
   { href: '/prayers',    label: 'Prayers',   icon: Moon },
   { href: '/adhkar',     label: 'Adhkar',    icon: BookMarked },
   { href: '/qibla',      label: 'Qibla',     icon: Compass },
+  { href: '/quran',      label: 'Quran',     icon: BookText },
   { href: '/events',     label: 'Events',    icon: Calendar },
   { href: '/history',    label: 'History',   icon: BookOpen },
   { href: '/stats',      label: 'Statistics',icon: BarChart2 },

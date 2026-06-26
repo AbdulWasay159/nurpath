@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
-import { Check, X, RotateCcw, Clock } from 'lucide-react';
+import { Check, X, RotateCcw, Clock, Minus } from 'lucide-react';
+
+// ─── FARZ META ───────────────────────────────────────────────────────────────
 
 const PRAYER_META = {
   fajr:    { icon: '🌙', label: 'Fajr',    timeLabel: 'Pre-dawn',  arabic: 'الفجر' },
@@ -9,7 +11,31 @@ const PRAYER_META = {
   isha:    { icon: '🌙', label: 'Isha',    timeLabel: 'Night',     arabic: 'العشاء' },
 };
 
-// Animated SVG ring
+// ─── SUNNAH META ─────────────────────────────────────────────────────────────
+
+// isFriday: pass true on Fridays to swap Dhuhr sunnah for Jumu'ah
+export const SUNNAH_META = {
+  fajr_sunnah:    { icon: '🌙', label: 'Fajr',          arabic: 'سنة الفجر',   rakahs: 2,  note: '2 before Fajr' },
+  dhuhr_before:   { icon: '☀️', label: 'Dhuhr (before)', arabic: 'سنة الظهر',   rakahs: 4,  note: '4 before Dhuhr' },
+  dhuhr_after:    { icon: '☀️', label: 'Dhuhr (after)',  arabic: 'سنة الظهر',   rakahs: 2,  note: '2 after Dhuhr' },
+  asr_sunnah:     { icon: '🌤️', label: 'Asr',           arabic: 'سنة العصر',   rakahs: 4,  note: '4 before Asr' },
+  maghrib_sunnah: { icon: '🌅', label: 'Maghrib',        arabic: 'سنة المغرب',  rakahs: 2,  note: '2 after Maghrib' },
+  isha_sunnah:    { icon: '🌙', label: 'Isha',           arabic: 'سنة العشاء',  rakahs: 2,  note: '2 after Isha' },
+  jumuah_after:   { icon: '🕌', label: "Jumu'ah",        arabic: 'سنة الجمعة',  rakahs: null, note: '4 (masjid) or 2 (home) after Jumu\'ah' },
+};
+
+// Rakah count for jumuah_after depends on the variant chosen
+export function getSunnahRakahs(name, variant) {
+  if (name === 'jumuah_after') {
+    if (variant === 'masjid') return 4;
+    if (variant === 'home') return 2;
+    return null; // not chosen yet
+  }
+  return SUNNAH_META[name]?.rakahs ?? null;
+}
+
+// ─── FARZ: Animated SVG ring ──────────────────────────────────────────────────
+
 export function PrayerRing({ prayers = [] }) {
   const done = prayers.filter((p) => p.status === 'done' || p.status === 'qada').length;
   const missed = prayers.filter((p) => p.status === 'missed').length;
@@ -83,16 +109,17 @@ export function PrayerRing({ prayers = [] }) {
   );
 }
 
-// Individual prayer card — shows prayer time, status, tap to cycle
+// ─── FARZ: Individual prayer card ─────────────────────────────────────────────
+
 export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
   const meta = PRAYER_META[prayer.name];
   const status = prayer.status;
 
   const styles = {
-    pending: { border: 'rgba(201,168,76,0.1)',   bg: '#0F1620',                   nameColor: '#EDE8D8', accent: '#3A4A60',  glow: 'none' },
-    done:    { border: 'rgba(34,197,94,0.35)',   bg: 'rgba(34,197,94,0.06)',      nameColor: '#22C55E', accent: '#22C55E',  glow: '0 4px 20px rgba(34,197,94,0.1)' },
-    missed:  { border: 'rgba(239,68,68,0.35)',   bg: 'rgba(239,68,68,0.06)',      nameColor: '#EF4444', accent: '#EF4444',  glow: '0 4px 20px rgba(239,68,68,0.1)' },
-    qada:    { border: 'rgba(245,158,11,0.35)',  bg: 'rgba(245,158,11,0.06)',     nameColor: '#F59E0B', accent: '#F59E0B',  glow: '0 4px 20px rgba(245,158,11,0.1)' },
+    pending: { border: 'rgba(201,168,76,0.1)',  bg: '#0F1620',              nameColor: '#EDE8D8', accent: '#3A4A60',  glow: 'none' },
+    done:    { border: 'rgba(34,197,94,0.35)',  bg: 'rgba(34,197,94,0.06)', nameColor: '#22C55E', accent: '#22C55E',  glow: '0 4px 20px rgba(34,197,94,0.1)' },
+    missed:  { border: 'rgba(239,68,68,0.35)',  bg: 'rgba(239,68,68,0.06)', nameColor: '#EF4444', accent: '#EF4444',  glow: '0 4px 20px rgba(239,68,68,0.1)' },
+    qada:    { border: 'rgba(245,158,11,0.35)', bg: 'rgba(245,158,11,0.06)',nameColor: '#F59E0B', accent: '#F59E0B',  glow: '0 4px 20px rgba(245,158,11,0.1)' },
   };
   const s = styles[status] || styles.pending;
 
@@ -115,12 +142,7 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
         transition: 'all 0.2s ease',
       }}
     >
-      {/* Shimmer on loading */}
-      {loading && (
-        <div className="absolute inset-0 skeleton rounded-2xl" />
-      )}
-
-      {/* Status colored top bar */}
+      {loading && <div className="absolute inset-0 skeleton rounded-2xl" />}
       <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl transition-all"
         style={{ background: status !== 'pending' ? s.accent : 'transparent' }} />
 
@@ -130,7 +152,6 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
       </span>
       <span className="block font-amiri text-xs mb-1" style={{ color: '#7A6130' }}>{meta?.arabic}</span>
 
-      {/* Prayer time */}
       {prayerTime && (
         <span className="block text-xs mb-2 flex items-center justify-center gap-1" style={{ color: '#3A4A60' }}>
           <Clock size={9} />
@@ -138,7 +159,6 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
         </span>
       )}
 
-      {/* Status circle */}
       <div className="flex items-center justify-center mt-1">
         <div className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
           style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.2)', border: `1.5px solid ${s.accent}` }}>
@@ -155,7 +175,153 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
   );
 }
 
-// History pill
+// ─── SUNNAH: Individual sunnah card ──────────────────────────────────────────
+// Cycles: pending → done → skipped → pending
+// For jumuah_after: when marking done, shows a variant picker (masjid / home)
+
+export function SunnahCard({ sunnah, onUpdate, loading }) {
+  const meta = SUNNAH_META[sunnah.name];
+  const status = sunnah.status;
+  const rakahs = getSunnahRakahs(sunnah.name, sunnah.variant);
+  const isJumuah = sunnah.name === 'jumuah_after';
+
+  const styles = {
+    pending: { border: 'rgba(201,168,76,0.08)', bg: 'rgba(255,255,255,0.02)', nameColor: '#7A8FA8', accent: '#3A4A60' },
+    done:    { border: 'rgba(139,92,246,0.35)',  bg: 'rgba(139,92,246,0.06)', nameColor: '#A78BFA', accent: '#A78BFA' },
+    skipped: { border: 'rgba(58,74,96,0.3)',     bg: 'rgba(58,74,96,0.08)',   nameColor: '#3A4A60', accent: '#3A4A60' },
+  };
+  const s = styles[status] || styles.pending;
+
+  const cycle = () => {
+    if (isJumuah && status === 'pending') {
+      // Jumuah: don't cycle blindly — let variant picker handle it
+      // We call with a sentinel; parent will open the picker
+      onUpdate(sunnah.name, 'done', null, true /* openPicker */);
+      return;
+    }
+    const map = { pending: 'done', done: 'skipped', skipped: 'pending' };
+    onUpdate(sunnah.name, map[status] || 'done');
+  };
+
+  return (
+    <motion.div
+      whileHover={{ y: -3, boxShadow: '0 6px 24px rgba(0,0,0,0.25)' }}
+      whileTap={{ scale: 0.96 }}
+      onClick={!loading ? cycle : undefined}
+      className="rounded-xl p-3 text-center cursor-pointer relative overflow-hidden select-none"
+      style={{
+        background: s.bg,
+        border: `1px solid ${s.border}`,
+        opacity: loading ? 0.65 : 1,
+        transition: 'all 0.2s ease',
+        minHeight: 110,
+      }}
+    >
+      {loading && <div className="absolute inset-0 skeleton rounded-xl" />}
+      <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl transition-all"
+        style={{ background: status !== 'pending' ? s.accent : 'transparent' }} />
+
+      <span className="block text-base mb-1">{meta?.icon}</span>
+      <span className="block text-xs font-bold leading-tight mb-0.5" style={{ color: s.nameColor, fontSize: '0.65rem', letterSpacing: '0.3px' }}>
+        {meta?.label}
+      </span>
+
+      {/* Rakah badge */}
+      <span className="block text-xs mb-1.5" style={{ color: '#3A4A60' }}>
+        {isJumuah
+          ? (sunnah.variant === 'masjid' ? '4 rak'
+           : sunnah.variant === 'home'   ? '2 rak'
+           : '?')
+          : `${rakahs} rak`}
+      </span>
+
+      {/* Status icon */}
+      <div className="flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
+          style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.15)', border: `1.5px solid ${s.accent}` }}>
+          {status === 'done'    && <Check  size={11} style={{ color: '#A78BFA' }} />}
+          {status === 'skipped' && <Minus  size={11} style={{ color: '#3A4A60' }} />}
+        </div>
+      </div>
+
+      <div className="mt-1 text-xs font-semibold capitalize" style={{ color: s.accent, fontSize: '0.6rem' }}>
+        {status === 'skipped' ? 'skipped' : status}
+      </div>
+
+      {/* Variant badge for jumuah done */}
+      {isJumuah && status === 'done' && sunnah.variant && (
+        <div className="mt-0.5 text-xs" style={{ color: '#A78BFA', fontSize: '0.58rem' }}>
+          {sunnah.variant === 'masjid' ? '🕌 masjid' : '🏠 home'}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+// ─── SUNNAH: Jumu'ah variant picker modal ────────────────────────────────────
+
+export function JumuahVariantModal({ open, onChoose, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
+      <motion.div
+        initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+        className="rounded-2xl p-6 w-full max-w-xs mx-4 mb-4 sm:mb-0"
+        style={{ background: '#0F1620', border: '1px solid rgba(139,92,246,0.3)' }}
+        onClick={(e) => e.stopPropagation()}>
+        <p className="font-amiri text-lg mb-1 text-center" style={{ color: '#C9A84C' }}>سنة الجمعة</p>
+        <h3 className="text-sm font-semibold text-center mb-1" style={{ color: '#EDE8D8' }}>
+          Where did you pray Jumu'ah?
+        </h3>
+        <p className="text-xs text-center mb-5" style={{ color: '#7A8FA8' }}>
+          This determines how many sunnah rak'ah to log.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => onChoose('masjid')}
+            className="rounded-xl py-4 flex flex-col items-center gap-2 transition"
+            style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.3)' }}>
+            <span className="text-2xl">🕌</span>
+            <span className="text-sm font-semibold" style={{ color: '#A78BFA' }}>Masjid</span>
+            <span className="text-xs" style={{ color: '#7A8FA8' }}>4 rak'ah</span>
+          </button>
+          <button onClick={() => onChoose('home')}
+            className="rounded-xl py-4 flex flex-col items-center gap-2 transition"
+            style={{ background: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.2)' }}>
+            <span className="text-2xl">🏠</span>
+            <span className="text-sm font-semibold" style={{ color: '#2DD4BF' }}>Home</span>
+            <span className="text-xs" style={{ color: '#7A8FA8' }}>2 rak'ah</span>
+          </button>
+        </div>
+        <button onClick={onClose} className="w-full mt-4 text-xs py-2" style={{ color: '#3A4A60' }}>
+          Cancel
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── SUNNAH: Row of mini pills (for history expanded view) ───────────────────
+
+export function SunnahPill({ name, status, variant }) {
+  const meta = SUNNAH_META[name];
+  const colors = {
+    done:    { bg: 'rgba(139,92,246,0.12)', color: '#A78BFA' },
+    skipped: { bg: 'rgba(58,74,96,0.2)',    color: '#3A4A60' },
+    pending: { bg: 'rgba(58,74,96,0.12)',   color: '#4A5A70' },
+  };
+  const c = colors[status] || colors.pending;
+  const rakahs = getSunnahRakahs(name, variant);
+  return (
+    <span className="text-xs font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+      style={{ background: c.bg, color: c.color }}>
+      {meta?.label}{rakahs ? ` (${rakahs})` : ''}
+    </span>
+  );
+}
+
+// ─── FARZ: History pill (unchanged) ──────────────────────────────────────────
+
 export function PrayerPill({ name, status }) {
   const colors = {
     done:    { bg: 'rgba(34,197,94,0.12)',  color: '#22C55E' },
