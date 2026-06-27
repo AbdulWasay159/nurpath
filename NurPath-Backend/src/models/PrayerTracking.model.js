@@ -5,7 +5,7 @@ const prayerEntrySchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'done', 'missed', 'qada'], default: 'pending' },
   markedAt: { type: Date, default: null },
   method: { type: String, enum: ['congregation', 'alone', 'qada', ''], default: '' },
-  notes: { type: String, default: '' },
+  notes: { type: String, default: '', maxlength: [500, 'Note cannot exceed 500 characters'] },
 });
 
 // Sunnah entry schema

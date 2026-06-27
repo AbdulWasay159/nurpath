@@ -53,9 +53,17 @@ const markAllRead = asyncHandler(async (req, res) => {
 const createNotification = asyncHandler(async (req, res) => {
   const { title, message, type, isBroadcast, recipients, relatedEvent } = req.body;
 
+  // Basic validation — prevent saving null/empty notifications
+  if (!title || !title.trim()) {
+    return res.status(400).json({ success: false, message: 'Notification title is required.' });
+  }
+  if (!message || !message.trim()) {
+    return res.status(400).json({ success: false, message: 'Notification message is required.' });
+  }
+
   const notif = await Notification.create({
-    title,
-    message,
+    title: title.trim(),
+    message: message.trim(),
     type: type || 'announcement',
     isBroadcast: isBroadcast ?? true,
     recipients: recipients || [],

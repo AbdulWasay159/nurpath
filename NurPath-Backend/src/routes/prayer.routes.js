@@ -19,8 +19,10 @@ router.get('/history',                         getPrayerHistory);
 router.get('/stats',                           getPrayerStats);
 
 // ── Today's farz & sunnah updates ──
-router.put('/today/:prayerName',               updatePrayerStatus);
+// IMPORTANT: specific /today/sunnah/:sunnahName MUST come before the wildcard /today/:prayerName
+// so Express matches the literal "sunnah" segment first, not as a :prayerName value.
 router.put('/today/sunnah/:sunnahName',        updateSunnahStatus);
+router.put('/today/:prayerName',               updatePrayerStatus);
 
 // ── Past date farz & sunnah updates ──
 // NOTE: /today/sunnah/:name is registered above so 'today' won't be treated as a :date here

@@ -291,7 +291,9 @@ export default function SurahReaderPage() {
 
   const handleFontChange = (fontId) => {
     setActiveFont(fontId);
-    try { localStorage.setItem('quran_font', fontId); } catch {}
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem('quran_font', fontId); } catch {}
+    }
   };
 
   const handleTranslationToggle = (edition) => {
@@ -305,12 +307,14 @@ export default function SurahReaderPage() {
         // Max 2 at a time
         next = [...prev.slice(-1), edition];
       }
-      try { localStorage.setItem('quran_translations', JSON.stringify(next)); } catch {}
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('quran_translations', JSON.stringify(next)); } catch {}
+      }
       return next;
     });
   };
 
-  const fetchSurah = useCallback(async (sid, translations) => {
+  const fetchSurah = useCallback(async (sid, translations, signal) => {
     setLoading(true);
     setError('');
     setVerses([]);
@@ -318,25 +322,28 @@ export default function SurahReaderPage() {
 
     try {
       const editionsParam = translations.join(',');
-      const res  = await fetch(`/api/quran/${sid}?translations=${editionsParam}`);
+      const res  = await fetch(`/api/quran/${sid}?translations=${editionsParam}`, { signal });
       const data = await res.json();
 
       if (!res.ok || data.error) throw new Error(data.error || 'API error');
 
       setChapter(data.chapter);
       setVerses(data.verses);
-    } catch {
+    } catch (err) {
+      // AbortError is expected when a newer request cancels an in-flight one — ignore it
+      if (err.name === 'AbortError') return;
       setError('Failed to load surah. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Refetch when surahId or translations change
+  // Refetch when surahId or translations change; cancel any in-flight request first
   useEffect(() => {
-    if (surahId && surahId >= 1 && surahId <= 114) {
-      fetchSurah(surahId, activeTranslations);
-    }
+    if (!surahId || surahId < 1 || surahId > 114) return;
+    const controller = new AbortController();
+    fetchSurah(surahId, activeTranslations, controller.signal);
+    return () => controller.abort(); // cancel on cleanup (unmount or dependency change)
   }, [surahId, activeTranslations, fetchSurah]);
 
   const fontConfig = FONTS.find((f) => f.id === activeFont) || FONTS[0];

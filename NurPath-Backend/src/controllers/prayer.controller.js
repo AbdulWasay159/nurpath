@@ -44,9 +44,12 @@ const getTodayPrayers = asyncHandler(async (req, res) => {
       sunnahPrayers: freshSunnahPrayers(today),
     });
   } else {
-    // Migration: seed sunnah if missing on existing record
+    // Migration: seed sunnah if missing on existing record.
+    // Only save if something actually changed — avoids a pointless DB write on every page load.
     ensureSunnah(record);
-    await record.save();
+    if (record.isModified()) {
+      await record.save();
+    }
   }
 
   res.json({ success: true, data: record });
@@ -314,25 +317,49 @@ const updatePastSunnahStatus = asyncHandler(async (req, res) => {
 // ─── HELPER ───────────────────────────────────────────────────────────────────
 
 async function syncUserStats(userId) {
-  const records = await PrayerTracking.find({ user: userId }).sort({ date: -1 });
-  let totalPrayed = 0, totalMissed = 0, currentStreak = 0, longestStreak = 0;
-
-  records.forEach((rec) => {
-    totalPrayed += rec.prayers.filter((p) => p.status === 'done' || p.status === 'qada').length;
-    totalMissed += rec.prayers.filter((p) => p.status === 'missed').length;
-  });
-
   const today = new Date().toLocaleDateString('en-CA');
-  const todayRecord = records.find((r) => r.date === today);
+
+  // ── Totals via aggregation — one pipeline instead of loading all records ──
+  const totalsResult = await PrayerTracking.aggregate([
+    { $match: { user: userId } },
+    { $unwind: '$prayers' },
+    {
+      $group: {
+        _id: null,
+        totalPrayed: {
+          $sum: { $cond: [{ $in: ['$prayers.status', ['done', 'qada']] }, 1, 0] },
+        },
+        totalMissed: {
+          $sum: { $cond: [{ $eq: ['$prayers.status', 'missed'] }, 1, 0] },
+        },
+      },
+    },
+  ]);
+
+  const totalPrayed = totalsResult[0]?.totalPrayed ?? 0;
+  const totalMissed = totalsResult[0]?.totalMissed ?? 0;
+
+  // ── Streak — only fetch last 90 days sorted desc, not all time ──
+  const since = new Date();
+  since.setDate(since.getDate() - 90);
+  const sinceStr = since.toLocaleDateString('en-CA');
+
+  const recentRecords = await PrayerTracking.find(
+    { user: userId, date: { $gte: sinceStr } },
+    { date: 1, completionRate: 1 }
+  ).sort({ date: -1 });
+
+  const todayRecord = recentRecords.find((r) => r.date === today);
   const todayIsComplete = todayRecord && todayRecord.completionRate === 100;
   const startOffset = todayIsComplete ? 0 : 1;
 
-  let d = new Date();
-  for (let i = startOffset; i < startOffset + records.length + 1; i++) {
-    const expectedDate = new Date(d);
-    expectedDate.setDate(expectedDate.getDate() - i);
-    const expectedStr = expectedDate.toLocaleDateString('en-CA');
-    const rec = records.find((r) => r.date === expectedStr);
+  let currentStreak = 0;
+  const d = new Date();
+  for (let i = startOffset; i < startOffset + recentRecords.length + 1; i++) {
+    const expected = new Date(d);
+    expected.setDate(expected.getDate() - i);
+    const expectedStr = expected.toLocaleDateString('en-CA');
+    const rec = recentRecords.find((r) => r.date === expectedStr);
     if (rec && rec.completionRate === 100) {
       currentStreak++;
     } else {
@@ -340,7 +367,9 @@ async function syncUserStats(userId) {
     }
   }
 
-  const sortedAsc = [...records].sort((a, b) => (a.date > b.date ? 1 : -1));
+  // Longest streak from sorted-ascending recent records
+  const sortedAsc = [...recentRecords].sort((a, b) => (a.date > b.date ? 1 : -1));
+  let longestStreak = 0;
   let runningStreak = 0;
   let prevDate = null;
   for (const rec of sortedAsc) {
@@ -348,8 +377,7 @@ async function syncUserStats(userId) {
       if (prevDate) {
         const prev = new Date(prevDate);
         prev.setDate(prev.getDate() + 1);
-        const expectedNext = prev.toLocaleDateString('en-CA');
-        if (rec.date === expectedNext) {
+        if (rec.date === prev.toLocaleDateString('en-CA')) {
           runningStreak++;
         } else {
           runningStreak = 1;
@@ -364,7 +392,6 @@ async function syncUserStats(userId) {
       prevDate = null;
     }
   }
-
   longestStreak = Math.max(longestStreak, currentStreak);
 
   await User.findByIdAndUpdate(userId, {

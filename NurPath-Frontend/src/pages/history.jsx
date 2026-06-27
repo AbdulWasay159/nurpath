@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
+import toast from 'react-hot-toast';
 import AppLayout from '../components/layout/AppLayout';
 import { PrayerPill, SunnahPill, SUNNAH_META, getSunnahRakahs } from '../components/prayer/PrayerComponents';
 import api from '../lib/api';
@@ -43,9 +44,8 @@ function EditPrayerModal({ date, prayer, onSave, onClose }) {
       await api.put(`/prayers/${date}/${prayer.name}`, { status });
       onSave();
     } catch {
-      // silent — parent reloads
-    } finally {
-      setSaving(false);
+      toast.error('Failed to save. Please try again.');
+      setSaving(false); // keep modal open so user can retry
     }
   };
 
@@ -107,9 +107,8 @@ function EditSunnahModal({ date, sunnah, onSave, onClose }) {
       await api.put(`/prayers/${date}/sunnah/${sunnah.name}`, body);
       onSave();
     } catch {
-      // silent
-    } finally {
-      setSaving(false);
+      toast.error('Failed to save. Please try again.');
+      setSaving(false); // keep modal open so user can retry
     }
   };
 
@@ -447,7 +446,7 @@ export default function HistoryPage() {
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div className="flex gap-2">
           {[7, 14, 30, 60].map((d) => (
-            <button key={d} onClick={() => setDays(d)}
+            <button key={d} onClick={() => { setDays(d); setExpandedDay(null); }}
               className="px-4 py-2 rounded-xl text-sm font-semibold transition"
               style={{ background: days === d ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${days === d ? 'rgba(201,168,76,0.35)' : 'rgba(255,255,255,0.07)'}`, color: days === d ? '#C9A84C' : '#7A8FA8' }}>
               {d} days

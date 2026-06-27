@@ -7,7 +7,6 @@ import AppLayout from '../components/layout/AppLayout';
 import {
   PrayerRing, PrayerCard,
   SunnahCard, JumuahVariantModal,
-  SUNNAH_META,
 } from '../components/prayer/PrayerComponents';
 import AzkarModal from '../components/prayer/AzkarModal';
 import { Card, StatCard, Skeleton } from '../components/ui';
@@ -15,16 +14,6 @@ import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
 import { Calendar, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
-
-// Prayer time display names & icons
-const PRAYER_DISPLAY = [
-  { key: 'fajr',    label: 'Fajr',    arabic: 'الفجر',  icon: '🌙' },
-  { key: 'sunrise', label: 'Sunrise', arabic: 'شروق',   icon: '🌅', isSunrise: true },
-  { key: 'dhuhr',   label: 'Dhuhr',   arabic: 'الظهر',  icon: '☀️' },
-  { key: 'asr',     label: 'Asr',     arabic: 'العصر',  icon: '🌤️' },
-  { key: 'maghrib', label: 'Maghrib', arabic: 'المغرب', icon: '🌆' },
-  { key: 'isha',    label: 'Isha',    arabic: 'العشاء', icon: '🌙' },
-];
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -73,6 +62,11 @@ export default function DashboardPage() {
       const res = await api.put(`/prayers/today/${name}`, { status });
       setPrayers(res.data.data.prayers);
       setSunnahPrayers(res.data.data.sunnahPrayers || []);
+
+      // Refresh stats so streak/totalPrayed reflect the update immediately
+      const statsRes = await api.get('/prayers/stats');
+      setStats(statsRes.data.data);
+
       if (status === 'done') {
         toast.success('الحمد لله — Prayed ✓', { icon: null });
         setAzkarPrayer(name);

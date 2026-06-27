@@ -10,11 +10,13 @@ const getEvents = asyncHandler(async (req, res) => {
   if (upcoming === 'true') filter.date = { $gte: new Date() };
   if (category && category !== 'all') filter.category = category;
   if (search) {
+    // Escape special regex characters to prevent ReDoS via crafted search inputs
+    const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     filter.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { masjid: { $regex: search, $options: 'i' } },
-      { speaker: { $regex: search, $options: 'i' } },
-      { topic: { $regex: search, $options: 'i' } },
+      { title:   { $regex: escaped, $options: 'i' } },
+      { masjid:  { $regex: escaped, $options: 'i' } },
+      { speaker: { $regex: escaped, $options: 'i' } },
+      { topic:   { $regex: escaped, $options: 'i' } },
     ];
   }
 

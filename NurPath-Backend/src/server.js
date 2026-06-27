@@ -4,6 +4,15 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
+// ── Critical env-var assertions — fail fast at startup rather than at runtime ──
+const REQUIRED_ENV = ['JWT_SECRET', 'MONGO_URI'];
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`❌ FATAL: Required environment variable "${key}" is not set. Check your .env file.`);
+    process.exit(1);
+  }
+}
+
 // ── Security packages (install: npm i helmet express-rate-limit express-mongo-sanitize) ──
 let helmet, rateLimit, mongoSanitize;
 try { helmet        = require('helmet'); } catch {}

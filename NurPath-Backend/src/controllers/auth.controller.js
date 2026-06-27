@@ -85,6 +85,11 @@ const getMe = asyncHandler(async (req, res) => {
 const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
+  // Validate new password — Mongoose minlength only fires on create, not on direct assignment + save()
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
+  }
+
   const user = await User.findById(req.user._id).select('+password');
   if (!(await user.comparePassword(currentPassword))) {
     return res.status(400).json({ success: false, message: 'Current password is incorrect.' });
