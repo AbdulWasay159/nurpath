@@ -125,11 +125,12 @@ export default function DashboardPage() {
     <AppLayout>
       {/* ══ Header with greeting ══ */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <p className="font-amiri text-base mb-1" style={{ color: '#7A6130', direction: 'rtl' }}>
-          {greeting?.arabic || 'وَعَلَيْكُمُ السَّلَام'}
+        <p className="font-amiri text-xl mb-1 leading-relaxed" style={{ color: '#C9A84C', direction: 'rtl' }}>
+          ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ
         </p>
-        <h1 className="font-amiri text-4xl leading-tight" style={{ color: '#C9A84C' }}>
-          {greeting?.text || 'Welcome'}, {user?.name?.split(' ')[0]}
+        <h1 className="font-amiri text-4xl leading-tight" style={{ color: '#EDE8D8' }}>
+          Assalāmu ʿAlaykum Waraḥmatullāhi Wabarakātuh,{' '}
+          <span style={{ color: '#C9A84C' }}>{user?.name?.split(' ')[0]}</span>
         </h1>
         <div className="flex items-center gap-3 mt-1.5 flex-wrap">
           <span className="text-sm" style={{ color: '#7A8FA8' }}>
@@ -151,9 +152,9 @@ export default function DashboardPage() {
             </span>
           )}
         </div>
-        {greeting?.sub && (
-          <p className="text-sm mt-1" style={{ color: '#3A4A60' }}>{greeting.sub}</p>
-        )}
+        <p className="text-sm mt-2" style={{ color: '#3A4A60' }}>
+          May Allah accept your prayers and bless your day.
+        </p>
       </motion.div>
 
       {/* ══ Hadith of the moment ══ */}
@@ -184,7 +185,7 @@ export default function DashboardPage() {
       <div className="mb-7">
         <div className="flex items-center justify-between mb-3">
           <p className="section-label mb-0">Daily Salah — tap to mark</p>
-          <span className="text-xs" style={{ color: '#3A4A60' }}>Pending → Done → Missed</span>
+          <span className="text-xs" style={{ color: '#3A4A60' }}>Tap a card to mark</span>
         </div>
         <div className="grid grid-cols-5 gap-3">
           {loading

@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, RotateCcw, Clock, Minus } from 'lucide-react';
 
 // ─── FARZ META ───────────────────────────────────────────────────────────────
@@ -76,7 +77,7 @@ export function PrayerRing({ prayers = [] }) {
         <p className="text-sm mb-4" style={{ color: '#7A8FA8' }}>
           {done === 5
             ? 'جَزَاكَ اللَّهُ خَيْرًا — May Allah reward you'
-            : 'Tap a prayer card to mark it as prayed or missed.'}
+            : 'Tap a prayer card to choose Done, Missed, or Qaḍā.'}
         </p>
         <div className="flex gap-3 flex-wrap">
           {prayers.map((p) => {
@@ -109,9 +110,122 @@ export function PrayerRing({ prayers = [] }) {
   );
 }
 
+// ─── FARZ: Status picker modal ────────────────────────────────────────────────
+
+function PrayerStatusModal({ prayer, onChoose, onClose }) {
+  const meta = PRAYER_META[prayer.name];
+
+  const options = [
+    {
+      status: 'done',
+      label: 'Done',
+      arabic: 'أَدَّيْتُ',
+      sub: 'Alhamdulillah — I prayed',
+      icon: <Check size={20} />,
+      color: '#22C55E',
+      bg: 'rgba(34,197,94,0.08)',
+      border: 'rgba(34,197,94,0.35)',
+    },
+    {
+      status: 'missed',
+      label: 'Missed',
+      arabic: 'فَاتَتْنِي',
+      sub: 'Astaghfirullah — I missed it',
+      icon: <X size={20} />,
+      color: '#EF4444',
+      bg: 'rgba(239,68,68,0.08)',
+      border: 'rgba(239,68,68,0.3)',
+    },
+    {
+      status: 'qada',
+      label: 'Qaḍā',
+      arabic: 'قَضَاء',
+      sub: 'Making up a missed prayer',
+      icon: <RotateCcw size={18} />,
+      color: '#F59E0B',
+      bg: 'rgba(245,158,11,0.08)',
+      border: 'rgba(245,158,11,0.3)',
+    },
+  ];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+        className="w-full max-w-sm mx-4 mb-6 sm:mb-0 rounded-2xl overflow-hidden"
+        style={{ background: '#0B1420', border: '1px solid rgba(201,168,76,0.2)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 text-center"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <span className="text-3xl block mb-2">{meta?.icon}</span>
+          <p className="font-amiri text-xl" style={{ color: '#C9A84C' }}>{meta?.arabic}</p>
+          <h3 className="text-base font-semibold mt-0.5" style={{ color: '#EDE8D8' }}>
+            {meta?.label} Prayer
+          </h3>
+          <p className="text-xs mt-1" style={{ color: '#3A4A60' }}>How did it go?</p>
+        </div>
+
+        {/* Options */}
+        <div className="p-4 space-y-2.5">
+          {options.map((opt) => (
+            <motion.button
+              key={opt.status}
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => onChoose(opt.status)}
+              className="w-full flex items-center gap-4 rounded-xl px-4 py-3.5 text-left transition"
+              style={{
+                background: opt.bg,
+                border: `1px solid ${opt.border}`,
+              }}
+            >
+              {/* Icon circle */}
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: `${opt.color}15`, border: `1.5px solid ${opt.color}40`, color: opt.color }}>
+                {opt.icon}
+              </div>
+              {/* Labels */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold" style={{ color: opt.color }}>{opt.label}</span>
+                  <span className="font-amiri text-sm" style={{ color: `${opt.color}80` }}>{opt.arabic}</span>
+                </div>
+                <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{opt.sub}</p>
+              </div>
+              {/* Arrow */}
+              <span className="text-sm flex-shrink-0" style={{ color: `${opt.color}60` }}>›</span>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Cancel */}
+        <div className="px-4 pb-5">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl text-sm transition"
+            style={{ color: '#3A4A60', border: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── FARZ: Individual prayer card ─────────────────────────────────────────────
 
 export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
   const meta = PRAYER_META[prayer.name];
   const status = prayer.status;
 
@@ -123,63 +237,191 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
   };
   const s = styles[status] || styles.pending;
 
-  const cycle = () => {
-    const map = { pending: 'done', done: 'missed', missed: 'pending', qada: 'pending' };
-    onUpdate(prayer.name, map[status] || 'done');
+  const handleChoose = (newStatus) => {
+    setPickerOpen(false);
+    onUpdate(prayer.name, newStatus);
   };
 
   return (
-    <motion.div
-      whileHover={{ y: -5, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
-      whileTap={{ scale: 0.96 }}
-      onClick={!loading ? cycle : undefined}
-      className="rounded-2xl p-4 text-center cursor-pointer relative overflow-hidden select-none"
-      style={{
-        background: s.bg,
-        border: `1px solid ${s.border}`,
-        boxShadow: s.glow,
-        opacity: loading ? 0.65 : 1,
-        transition: 'all 0.2s ease',
-      }}
-    >
-      {loading && <div className="absolute inset-0 skeleton rounded-2xl" />}
-      <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl transition-all"
-        style={{ background: status !== 'pending' ? s.accent : 'transparent' }} />
+    <>
+      <motion.div
+        whileHover={{ y: -5, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
+        whileTap={{ scale: 0.96 }}
+        onClick={!loading ? () => setPickerOpen(true) : undefined}
+        className="rounded-2xl p-4 text-center cursor-pointer relative overflow-hidden select-none"
+        style={{
+          background: s.bg,
+          border: `1px solid ${s.border}`,
+          boxShadow: s.glow,
+          opacity: loading ? 0.65 : 1,
+          transition: 'all 0.2s ease',
+        }}
+      >
+        {loading && <div className="absolute inset-0 skeleton rounded-2xl" />}
+        <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl transition-all"
+          style={{ background: status !== 'pending' ? s.accent : 'transparent' }} />
 
-      <span className="block text-xl mb-1.5">{meta?.icon}</span>
-      <span className="block text-xs font-bold mb-0.5" style={{ color: s.nameColor, letterSpacing: '0.5px' }}>
-        {meta?.label}
-      </span>
-      <span className="block font-amiri text-xs mb-1" style={{ color: '#7A6130' }}>{meta?.arabic}</span>
-
-      {prayerTime && (
-        <span className="block text-xs mb-2 flex items-center justify-center gap-1" style={{ color: '#3A4A60' }}>
-          <Clock size={9} />
-          {prayerTime}
+        <span className="block text-xl mb-1.5">{meta?.icon}</span>
+        <span className="block text-xs font-bold mb-0.5" style={{ color: s.nameColor, letterSpacing: '0.5px' }}>
+          {meta?.label}
         </span>
-      )}
+        <span className="block font-amiri text-xs mb-1" style={{ color: '#7A6130' }}>{meta?.arabic}</span>
 
-      <div className="flex items-center justify-center mt-1">
-        <div className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
-          style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.2)', border: `1.5px solid ${s.accent}` }}>
-          {status === 'done'   && <Check     size={13} style={{ color: '#22C55E' }} />}
-          {status === 'missed' && <X         size={13} style={{ color: '#EF4444' }} />}
-          {status === 'qada'   && <RotateCcw size={11} style={{ color: '#F59E0B' }} />}
+        {prayerTime && (
+          <span className="block text-xs mb-2 flex items-center justify-center gap-1" style={{ color: '#3A4A60' }}>
+            <Clock size={9} />
+            {prayerTime}
+          </span>
+        )}
+
+        <div className="flex items-center justify-center mt-1">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
+            style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.2)', border: `1.5px solid ${s.accent}` }}>
+            {status === 'done'   && <Check     size={13} style={{ color: '#22C55E' }} />}
+            {status === 'missed' && <X         size={13} style={{ color: '#EF4444' }} />}
+            {status === 'qada'   && <RotateCcw size={11} style={{ color: '#F59E0B' }} />}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-1.5 text-xs font-semibold capitalize" style={{ color: s.accent }}>
-        {status === 'qada' ? 'Qaḍā' : status}
-      </div>
-    </motion.div>
+        <div className="mt-1.5 text-xs font-semibold capitalize" style={{ color: s.accent }}>
+          {status === 'qada' ? 'Qaḍā' : status}
+        </div>
+      </motion.div>
+
+      {/* Status picker modal */}
+      <AnimatePresence>
+        {pickerOpen && (
+          <PrayerStatusModal
+            prayer={prayer}
+            onChoose={handleChoose}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ─── SUNNAH: Status picker modal ─────────────────────────────────────────────
+
+function SunnahStatusModal({ sunnah, onChoose, onClose }) {
+  const meta = SUNNAH_META[sunnah.name];
+  const isJumuah = sunnah.name === 'jumuah_after';
+
+  const options = [
+    {
+      status: 'done',
+      label: 'Done',
+      arabic: 'أَدَّيْتُهَا',
+      sub: isJumuah ? 'I prayed sunnah after Jumu\'ah' : 'Alhamdulillah — I prayed it',
+      color: '#A78BFA',
+      bg: 'rgba(139,92,246,0.08)',
+      border: 'rgba(139,92,246,0.35)',
+      icon: <Check size={18} />,
+    },
+    {
+      status: 'skipped',
+      label: 'Skipped',
+      arabic: 'تَرَكْتُهَا',
+      sub: 'I did not pray this sunnah',
+      color: '#6B7280',
+      bg: 'rgba(107,114,128,0.08)',
+      border: 'rgba(107,114,128,0.25)',
+      icon: <Minus size={18} />,
+    },
+    {
+      status: 'pending',
+      label: 'Reset',
+      arabic: 'إِعَادَةٌ',
+      sub: 'Mark as not yet decided',
+      color: '#3A4A60',
+      bg: 'rgba(58,74,96,0.08)',
+      border: 'rgba(58,74,96,0.3)',
+      icon: <RotateCcw size={16} />,
+    },
+  ];
+
+  // For jumuah, "done" triggers the variant picker in parent — pass sentinel
+  const handleClick = (status) => {
+    if (isJumuah && status === 'done') {
+      onClose();
+      // small delay so modal closes before variant picker opens
+      setTimeout(() => onChoose(status, null, true), 120);
+      return;
+    }
+    onChoose(status);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+        className="w-full max-w-sm mx-4 mb-6 sm:mb-0 rounded-2xl overflow-hidden"
+        style={{ background: '#0B1420', border: '1px solid rgba(139,92,246,0.25)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 text-center"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <span className="text-3xl block mb-2">{meta?.icon}</span>
+          <p className="font-amiri text-lg" style={{ color: '#A78BFA' }}>{meta?.arabic}</p>
+          <h3 className="text-sm font-semibold mt-0.5" style={{ color: '#EDE8D8' }}>
+            {meta?.label} Sunnah
+          </h3>
+          {meta?.note && (
+            <p className="text-xs mt-1" style={{ color: '#3A4A60' }}>{meta.note}</p>
+          )}
+        </div>
+
+        {/* Options */}
+        <div className="p-4 space-y-2.5">
+          {options.map((opt) => (
+            <motion.button
+              key={opt.status}
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handleClick(opt.status)}
+              className="w-full flex items-center gap-4 rounded-xl px-4 py-3.5 text-left transition"
+              style={{ background: opt.bg, border: `1px solid ${opt.border}` }}
+            >
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: `${opt.color}18`, border: `1.5px solid ${opt.color}40`, color: opt.color }}>
+                {opt.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold" style={{ color: opt.color }}>{opt.label}</span>
+                  <span className="font-amiri text-sm" style={{ color: `${opt.color}70` }}>{opt.arabic}</span>
+                </div>
+                <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{opt.sub}</p>
+              </div>
+              <span className="text-sm flex-shrink-0" style={{ color: `${opt.color}50` }}>›</span>
+            </motion.button>
+          ))}
+        </div>
+
+        <div className="px-4 pb-5">
+          <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm transition"
+            style={{ color: '#3A4A60', border: '1px solid rgba(255,255,255,0.05)' }}>
+            Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
 // ─── SUNNAH: Individual sunnah card ──────────────────────────────────────────
-// Cycles: pending → done → skipped → pending
-// For jumuah_after: when marking done, shows a variant picker (masjid / home)
 
 export function SunnahCard({ sunnah, onUpdate, loading }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
   const meta = SUNNAH_META[sunnah.name];
   const status = sunnah.status;
   const rakahs = getSunnahRakahs(sunnah.name, sunnah.variant);
@@ -192,69 +434,76 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
   };
   const s = styles[status] || styles.pending;
 
-  const cycle = () => {
-    if (isJumuah && status === 'pending') {
-      // Jumuah: don't cycle blindly — let variant picker handle it
-      // We call with a sentinel; parent will open the picker
-      onUpdate(sunnah.name, 'done', null, true /* openPicker */);
-      return;
-    }
-    const map = { pending: 'done', done: 'skipped', skipped: 'pending' };
-    onUpdate(sunnah.name, map[status] || 'done');
+  const handleChoose = (newStatus, variant, openJumuahPicker) => {
+    setPickerOpen(false);
+    onUpdate(sunnah.name, newStatus, variant, openJumuahPicker);
   };
 
   return (
-    <motion.div
-      whileHover={{ y: -3, boxShadow: '0 6px 24px rgba(0,0,0,0.25)' }}
-      whileTap={{ scale: 0.96 }}
-      onClick={!loading ? cycle : undefined}
-      className="rounded-xl p-3 text-center cursor-pointer relative overflow-hidden select-none"
-      style={{
-        background: s.bg,
-        border: `1px solid ${s.border}`,
-        opacity: loading ? 0.65 : 1,
-        transition: 'all 0.2s ease',
-        minHeight: 110,
-      }}
-    >
-      {loading && <div className="absolute inset-0 skeleton rounded-xl" />}
-      <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl transition-all"
-        style={{ background: status !== 'pending' ? s.accent : 'transparent' }} />
+    <>
+      <motion.div
+        whileHover={{ y: -3, boxShadow: '0 6px 24px rgba(0,0,0,0.25)' }}
+        whileTap={{ scale: 0.96 }}
+        onClick={!loading ? () => setPickerOpen(true) : undefined}
+        className="rounded-xl p-3 text-center cursor-pointer relative overflow-hidden select-none"
+        style={{
+          background: s.bg,
+          border: `1px solid ${s.border}`,
+          opacity: loading ? 0.65 : 1,
+          transition: 'all 0.2s ease',
+          minHeight: 110,
+        }}
+      >
+        {loading && <div className="absolute inset-0 skeleton rounded-xl" />}
+        <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl transition-all"
+          style={{ background: status !== 'pending' ? s.accent : 'transparent' }} />
 
-      <span className="block text-base mb-1">{meta?.icon}</span>
-      <span className="block text-xs font-bold leading-tight mb-0.5" style={{ color: s.nameColor, fontSize: '0.65rem', letterSpacing: '0.3px' }}>
-        {meta?.label}
-      </span>
+        <span className="block text-base mb-1">{meta?.icon}</span>
+        <span className="block text-xs font-bold leading-tight mb-0.5" style={{ color: s.nameColor, fontSize: '0.65rem', letterSpacing: '0.3px' }}>
+          {meta?.label}
+        </span>
 
-      {/* Rakah badge */}
-      <span className="block text-xs mb-1.5" style={{ color: '#3A4A60' }}>
-        {isJumuah
-          ? (sunnah.variant === 'masjid' ? '4 rak'
-           : sunnah.variant === 'home'   ? '2 rak'
-           : '?')
-          : `${rakahs} rak`}
-      </span>
+        {/* Rakah badge */}
+        <span className="block text-xs mb-1.5" style={{ color: '#3A4A60' }}>
+          {isJumuah
+            ? (sunnah.variant === 'masjid' ? '4 rak'
+             : sunnah.variant === 'home'   ? '2 rak'
+             : '?')
+            : `${rakahs} rak`}
+        </span>
 
-      {/* Status icon */}
-      <div className="flex items-center justify-center">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
-          style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.15)', border: `1.5px solid ${s.accent}` }}>
-          {status === 'done'    && <Check  size={11} style={{ color: '#A78BFA' }} />}
-          {status === 'skipped' && <Minus  size={11} style={{ color: '#3A4A60' }} />}
+        {/* Status icon */}
+        <div className="flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
+            style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.15)', border: `1.5px solid ${s.accent}` }}>
+            {status === 'done'    && <Check  size={11} style={{ color: '#A78BFA' }} />}
+            {status === 'skipped' && <Minus  size={11} style={{ color: '#3A4A60' }} />}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-1 text-xs font-semibold capitalize" style={{ color: s.accent, fontSize: '0.6rem' }}>
-        {status === 'skipped' ? 'skipped' : status}
-      </div>
-
-      {/* Variant badge for jumuah done */}
-      {isJumuah && status === 'done' && sunnah.variant && (
-        <div className="mt-0.5 text-xs" style={{ color: '#A78BFA', fontSize: '0.58rem' }}>
-          {sunnah.variant === 'masjid' ? '🕌 masjid' : '🏠 home'}
+        <div className="mt-1 text-xs font-semibold capitalize" style={{ color: s.accent, fontSize: '0.6rem' }}>
+          {status === 'skipped' ? 'skipped' : status}
         </div>
-      )}
-    </motion.div>
+
+        {/* Variant badge for jumuah done */}
+        {isJumuah && status === 'done' && sunnah.variant && (
+          <div className="mt-0.5 text-xs" style={{ color: '#A78BFA', fontSize: '0.58rem' }}>
+            {sunnah.variant === 'masjid' ? '🕌 masjid' : '🏠 home'}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Status picker modal */}
+      <AnimatePresence>
+        {pickerOpen && (
+          <SunnahStatusModal
+            sunnah={sunnah}
+            onChoose={handleChoose}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
