@@ -1,48 +1,101 @@
-# Forgot Password Feature — Files to Replace
+# NurPath — Salah & Adhkar Tracker
 
-## How to apply
-1. Unzip this into a scratch folder.
-2. Copy each file over the matching path in your repo (same folder structure: `NurPath-Backend/...`, `NurPath-Frontend/...`).
-3. In `NurPath-Backend`, run:
-   ```
-   npm install resend
-   ```
-4. Add to your **real** `NurPath-Backend/.env** (not the .env.example included here — that's just a reference):
-   ```
-   RESEND_API_KEY=re_your_api_key_here
-   EMAIL_FROM=NurPath <onboarding@resend.dev>
-   ```
-   Get a free API key at https://resend.com (no domain verification needed to start — `onboarding@resend.dev` works out of the box).
+A focused, dark-mode-only Islamic companion for tracking your daily Salah and Adhkar.
+**Node.js/Express** backend · **Next.js 14 / React** frontend.
 
-## Files included
+This build is deliberately scoped down to one job: help someone track their five daily
+prayers, Sunnah prayers, and Qada, keep up with morning/evening Adhkar, find the Qibla,
+and see their history and stats. Quran, Hadith, 99 Names of Allah, Masjid listings, and
+Events are separate apps/sites (not part of this codebase) sharing this same backend.
 
-### Backend (full replacements)
-- `NurPath-Backend/package.json` — added `resend` dependency
-- `NurPath-Backend/.env.example` — reference only, shows new vars needed
-- `NurPath-Backend/src/models/User.model.js` — added reset token + lockout fields/methods
-- `NurPath-Backend/src/controllers/auth.controller.js` — added `forgotPassword`, `resetPassword`, lockout logic in `login`
-- `NurPath-Backend/src/routes/auth.routes.js` — added `/forgot-password` and `/reset-password/:token` routes
-- `NurPath-Backend/src/server.js` — added a dedicated rate limiter for `/forgot-password` (3/hour)
+---
 
-### Backend (new file)
-- `NurPath-Backend/src/utils/email.js` — Resend email sender for the reset link
+## Quick Start
 
-### Frontend (full replacements)
-- `NurPath-Frontend/src/context/AuthContext.jsx` — added `forgotPassword`, `resetPassword` methods
-- `NurPath-Frontend/src/pages/login.jsx` — added "Forgot password?" link
+### Backend
 
-### Frontend (new files)
-- `NurPath-Frontend/src/pages/forgot-password.jsx` — email entry page (includes a honeypot anti-bot field)
-- `NurPath-Frontend/src/pages/reset-password/[token].jsx` — new password entry page
+```bash
+cd NurPath-Backend
+npm install
+cp .env.example .env        # then fill in MONGO_URI and JWT_SECRET
+npm run dev                 # → http://localhost:5000
+```
 
-## What this adds
-- Forgot/reset password flow with 1-hour expiring, hashed tokens
-- Email enumeration protection (same response whether the email exists or not)
-- Rate limiting on the forgot-password endpoint (3/hour/IP)
-- Honeypot field on the forgot-password form (free bot deterrent)
-- Account lockout after 5 failed logins (15 min), auto-cleared on successful reset
+**No MongoDB set up yet?** Set `MONGO_URI=memory` in `.env` instead of a real
+connection string. This spins up a throwaway in-memory MongoDB automatically —
+no install, no account, no config. The first run needs internet access to
+download the `mongod` binary once (~80MB, then cached); after that it's instant.
+Data does not persist across server restarts in this mode.
 
-## Not touched
-- Your actual `.env` file (only `.env.example` is included as a reference)
-- `change-password` flow (unchanged — still requires current password, for logged-in users)
-- No email verification on signup, no "logout everywhere" — out of scope for this pass
+**Seed the database** (run once after first install):
+
+```bash
+npm run seed          # admin user
+npm run seed:adhkar   # morning & evening adhkar
+```
+
+Admin login: `admin@nurpath.app` / `Admin@123`
+
+### Frontend
+
+```bash
+cd NurPath-Frontend
+npm install
+cp .env.example .env.local  # set NEXT_PUBLIC_API_URL=http://localhost:5000/api
+npm run dev                 # → http://localhost:3000
+```
+
+---
+
+## What's in this Build
+
+### Backend (`NurPath-Backend/`)
+
+| Layer | Files |
+|---|---|
+| **Models** | User, PrayerTracking, Adhkar, Notification |
+| **Controllers** | auth, user, admin, prayer, adhkar, notification |
+| **Routes** | `/api/auth`, `/api/users`, `/api/prayers`, `/api/adhkar`, `/api/notifications`, `/api/admin` |
+| **Utils** | seed, seed-adhkar, email |
+
+### Frontend (`NurPath-Frontend/`)
+
+| Area | Files |
+|---|---|
+| **Pages** | dashboard, prayers, adhkar, qibla, history, stats, admin, profile, notifications, auth pages (login/register/forgot/reset password) |
+| **Components** | Navbar, AppLayout, PWAInstallPrompt, PrayerComponents, AzkarModal, UI primitives |
+| **Context** | AuthContext |
+| **Lib** | adhkar-enhanced, api, prayerTimes, hijri, azkar, serviceWorkerRegister |
+| **PWA** | service-worker.js, manifest.json, offline.html |
+
+Dark mode is the only theme — there is no light mode or theme toggle.
+
+---
+
+## Environment Variables
+
+**`NurPath-Backend/.env`**
+
+| Variable | Required | Default |
+|---|---|---|
+| `MONGO_URI` | ✅ | — |
+| `JWT_SECRET` | ✅ | — |
+| `PORT` | No | 5000 |
+| `NODE_ENV` | No | development |
+| `FRONTEND_URL` | No | http://localhost:3000 |
+| `RESEND_API_KEY` | No | — (email/password reset) |
+
+**`NurPath-Frontend/.env.local`**
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | Backend URL, including `/api` (default: http://localhost:5000/api) |
+
+---
+
+## What Was Removed From the Original Codebase
+
+Quran Notes, Public Notes/Likes, 99 Names of Allah, Quran reader/search/audio,
+Masjid listings, and Events were removed from this frontend and (where nothing else
+needed them) from the backend, to keep this app focused on Salah + Adhkar tracking.
+Light mode and the theme toggle were removed — the app is dark-only.

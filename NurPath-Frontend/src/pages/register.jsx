@@ -77,41 +77,41 @@ export default function RegisterPage() {
             <motion.span className="block text-5xl mb-3"
               animate={{ y: [0, -6, 0] }} transition={{ duration: 3.5, repeat: Infinity }}
               style={{ filter: 'drop-shadow(0 0 20px rgba(201,168,76,0.5))' }}>☽</motion.span>
-            <h1 className="font-amiri text-3xl mb-1" style={{ color: '#C9A84C' }}>Join NurPath</h1>
-            <p className="font-amiri" style={{ color: '#7A6130', direction: 'rtl' }}>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+            <h1 className="font-amiri text-3xl mb-1" style={{ color: 'var(--gold)' }}>Join NurPath</h1>
+            <p className="font-amiri" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>Full Name</label>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
               <input className="input-field" placeholder="Abdul Wasay" value={form.name} onChange={set('name')} />
               {errors.name && <p className="mt-1 text-xs" style={{ color: '#EF4444' }}>{errors.name}</p>}
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>Email Address</label>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>Email Address</label>
               <input type="email" className="input-field" placeholder="you@example.com" value={form.email} onChange={set('email')} />
               {errors.email && <p className="mt-1 text-xs" style={{ color: '#EF4444' }}>{errors.email}</p>}
             </div>
 
             {/* City */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>
-                City <span style={{ color: '#3A4A60', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(for prayer times)</span>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>
+                City <span style={{ color: 'var(--text-muted)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(for prayer times)</span>
               </label>
               <input className="input-field" placeholder="Hyderabad, India" value={form.city} onChange={set('city')} />
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>Password</label>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>Password</label>
               <div className="relative">
                 <input type={showPw ? 'text' : 'password'} className="input-field pr-12"
                   placeholder="Min. 6 characters" value={form.password} onChange={set('password')} />
                 <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: '#3A4A60' }}>
+                  className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -132,7 +132,7 @@ export default function RegisterPage() {
 
             {/* Confirm */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>Confirm Password</label>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>Confirm Password</label>
               <div className="relative">
                 <input type="password" className="input-field pr-12"
                   placeholder="••••••••" value={form.confirm} onChange={set('confirm')} />
@@ -157,13 +157,13 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm mt-6" style={{ color: '#3A4A60' }}>
+          <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold hover:underline" style={{ color: '#C9A84C' }}>Sign in</Link>
+            <Link href="/login" className="font-semibold hover:underline" style={{ color: 'var(--gold)' }}>Sign in</Link>
           </p>
         </div>
         <p className="text-center mt-4 text-xs">
-          <Link href="/" style={{ color: '#3A4A60' }} className="hover:underline">← Back to home</Link>
+          <Link href="/" style={{ color: 'var(--text-muted)' }} className="hover:underline">← Back to home</Link>
         </p>
       </motion.div>
     </div>

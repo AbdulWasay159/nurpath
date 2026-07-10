@@ -28,8 +28,19 @@ const markRead = asyncHandler(async (req, res) => {
   const notif = await Notification.findById(req.params.id);
   if (!notif) return res.status(404).json({ success: false, message: 'Notification not found.' });
 
-  if (!notif.readBy.includes(req.user._id)) {
-    notif.readBy.push(req.user._id);
+  // Verify this notification is actually visible to the requesting user —
+  // prevents any authenticated user from marking arbitrary notifications as read
+  const userId = req.user._id;
+  const isRecipient =
+    notif.isBroadcast ||
+    notif.recipients.some((r) => r.toString() === userId.toString());
+
+  if (!isRecipient) {
+    return res.status(403).json({ success: false, message: 'Not authorized.' });
+  }
+
+  if (!notif.readBy.some((r) => r.toString() === userId.toString())) {
+    notif.readBy.push(userId);
     await notif.save();
   }
 
@@ -51,7 +62,7 @@ const markAllRead = asyncHandler(async (req, res) => {
 
 // POST /api/notifications — admin only
 const createNotification = asyncHandler(async (req, res) => {
-  const { title, message, type, isBroadcast, recipients, relatedEvent } = req.body;
+  const { title, message, type, isBroadcast, recipients } = req.body;
 
   // Basic validation — prevent saving null/empty notifications
   if (!title || !title.trim()) {
@@ -67,7 +78,6 @@ const createNotification = asyncHandler(async (req, res) => {
     type: type || 'announcement',
     isBroadcast: isBroadcast ?? true,
     recipients: recipients || [],
-    relatedEvent: relatedEvent || null,
     createdBy: req.user._id,
   });
 

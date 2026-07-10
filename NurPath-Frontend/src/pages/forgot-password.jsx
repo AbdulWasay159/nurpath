@@ -65,8 +65,8 @@ export default function ForgotPasswordPage() {
                 <CheckCircle size={28} style={{ color: '#22C55E' }} />
               </motion.div>
               <h1 className="font-amiri text-3xl mb-3" style={{ color: '#C9A84C' }}>Check Your Email</h1>
-              <p className="text-sm leading-relaxed mb-8" style={{ color: '#7A8FA8' }}>
-                If an account exists for <strong style={{ color: '#EDE8D8' }}>{email}</strong>, we've sent a link to reset your password. It expires in 1 hour.
+              <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-secondary)' }}>
+                If an account exists for <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>, we've sent a link to reset your password. It expires in 1 hour.
               </p>
               <Link href="/login" className="btn-gold inline-block px-8 py-3">
                 Back to Sign In
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
               <div className="text-center mb-9 relative">
                 <span className="block text-6xl mb-4" style={{ filter: 'drop-shadow(0 0 24px rgba(201,168,76,0.6))' }}>☽</span>
                 <h1 className="font-amiri text-4xl mb-1" style={{ color: '#C9A84C' }}>Forgot Password?</h1>
-                <p className="text-sm mt-2" style={{ color: '#7A8FA8' }}>
+                <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
                   No worries — enter your email and we'll send you a reset link.
                 </p>
               </div>
@@ -93,11 +93,11 @@ export default function ForgotPasswordPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#3A4A60' }} />
+                    <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
                     <input
                       type="email" className="input-field pl-11"
                       placeholder="you@example.com"
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
                 </button>
               </form>
 
-              <p className="text-center text-sm mt-7" style={{ color: '#3A4A60' }}>
+              <p className="text-center text-sm mt-7" style={{ color: 'var(--text-muted)' }}>
                 Remembered it?{' '}
                 <Link href="/login" className="font-semibold hover:underline" style={{ color: '#C9A84C' }}>
                   Sign in
@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <p className="text-center mt-5 text-xs">
-          <Link href="/login" style={{ color: '#3A4A60' }} className="hover:text-gold-dim flex items-center justify-center gap-1">
+          <Link href="/login" style={{ color: 'var(--text-muted)' }} className="hover:text-gold-dim flex items-center justify-center gap-1">
             <ArrowLeft size={12} /> Back to login
           </Link>
         </p>

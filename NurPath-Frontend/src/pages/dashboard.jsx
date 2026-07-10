@@ -13,7 +13,7 @@ import { Card, StatCard, Skeleton } from '../components/ui';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
-import { Calendar, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -25,7 +25,6 @@ export default function DashboardPage() {
   const [prayers, setPrayers]               = useState([]);
   const [sunnahPrayers, setSunnahPrayers]   = useState([]);
   const [stats, setStats]                   = useState(null);
-  const [events, setEvents]                 = useState([]);
   const [loading, setLoading]               = useState(true);
   const [updatingPrayer, setUpdatingPrayer] = useState(null);
   const [updatingSunnah, setUpdatingSunnah] = useState(null);
@@ -37,15 +36,13 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [todayRes, statsRes, eventsRes] = await Promise.all([
+      const [todayRes, statsRes] = await Promise.all([
         api.get('/prayers/today'),
         api.get('/prayers/stats'),
-        api.get('/events?upcoming=true'),
       ]);
       setPrayers(todayRes.data.data.prayers);
       setSunnahPrayers(todayRes.data.data.sunnahPrayers || []);
       setStats(statsRes.data.data);
-      setEvents(eventsRes.data.data.slice(0, 3));
     } catch {
       toast.error('Failed to load data.');
     } finally {
@@ -119,19 +116,19 @@ export default function DashboardPage() {
     <AppLayout>
       {/* ══ Header with greeting ══ */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <p className="font-amiri text-xl mb-1 leading-relaxed" style={{ color: '#C9A84C', direction: 'rtl' }}>
+        <p className="font-amiri text-xl mb-1 leading-relaxed" style={{ color: 'var(--gold)', direction: 'rtl' }}>
           ٱلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ
         </p>
-        <h1 className="font-amiri text-4xl leading-tight" style={{ color: '#EDE8D8' }}>
+        <h1 className="font-amiri text-4xl leading-tight" style={{ color: 'var(--text-primary)' }}>
           Assalāmu ʿAlaykum Waraḥmatullāhi Wabarakātuh,{' '}
-          <span style={{ color: '#C9A84C' }}>{user?.name?.split(' ')[0]}</span>
+          <span style={{ color: 'var(--gold)' }}>{user?.name?.split(' ')[0]}</span>
         </h1>
         <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-          <span className="text-sm" style={{ color: '#7A8FA8' }}>
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {format(now, 'EEEE, MMMM d, yyyy')}
           </span>
           {hijri && (
-            <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C' }}>
+            <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
               {hijri.formattedShort} AH
             </span>
           )}
@@ -146,7 +143,7 @@ export default function DashboardPage() {
             </span>
           )}
         </div>
-        <p className="text-sm mt-2" style={{ color: '#3A4A60' }}>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
           May Allah accept your prayers and bless your day.
         </p>
       </motion.div>
@@ -156,14 +153,14 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
           className="rounded-2xl p-5 mb-6 text-center"
-          style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(45,212,191,0.03) 100%)', border: '1px solid rgba(201,168,76,0.1)' }}>
-          <p className="font-amiri text-base italic leading-relaxed mb-2" style={{ color: '#E8C97A' }}>
+          style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(45,212,191,0.03) 100%)', border: '1px solid var(--border)' }}>
+          <p className="font-amiri text-base italic leading-relaxed mb-2" style={{ color: 'var(--gold-light)' }}>
             "{hadith.text}"
           </p>
           {hadith.arabic && (
-            <p className="font-amiri text-base mb-2" style={{ color: '#7A6130', direction: 'rtl' }}>{hadith.arabic}</p>
+            <p className="font-amiri text-base mb-2" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>{hadith.arabic}</p>
           )}
-          <p className="text-xs uppercase tracking-widest" style={{ color: '#3A4A60' }}>— {hadith.source}</p>
+          <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>— {hadith.source}</p>
         </motion.div>
       )}
 
@@ -179,7 +176,7 @@ export default function DashboardPage() {
       <div className="mb-7">
         <div className="flex items-center justify-between mb-3">
           <p className="section-label mb-0">Daily Salah — tap to mark</p>
-          <span className="text-xs" style={{ color: '#3A4A60' }}>Tap a card to mark</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Tap a card to mark</span>
         </div>
         <div className="grid grid-cols-5 gap-3">
           {loading
@@ -212,14 +209,14 @@ export default function DashboardPage() {
             )}
             {isFriday && (
               <span className="text-xs px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(139,92,246,0.08)', color: '#7C6FBF' }}>
+                style={{ background: 'rgba(139,92,246,0.08)', color: 'var(--purple)' }}>
                 Jumu'ah
               </span>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs" style={{ color: '#3A4A60' }}>Pending → Done → Skipped</span>
-            <span style={{ color: '#3A4A60' }}>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Pending → Done → Skipped</span>
+            <span style={{ color: 'var(--text-muted)' }}>
               {sunnahOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </span>
           </div>
@@ -264,7 +261,7 @@ export default function DashboardPage() {
                       {sunnahDone} done
                     </span>
                     {sunnahSkipped > 0 && (
-                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(58,74,96,0.2)', color: '#7A8FA8' }}>
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(58,74,96,0.2)', color: 'var(--text-secondary)' }}>
                         {sunnahSkipped} skipped
                       </span>
                     )}
@@ -274,7 +271,7 @@ export default function DashboardPage() {
 
               {/* Friday tip */}
               {!loading && isFriday && (
-                <p className="text-xs mt-2" style={{ color: '#3A4A60' }}>
+                <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
                   🕌 Friday: no fixed sunnah before Jumu'ah. Tap the Jumu'ah card to log 4 (masjid) or 2 (home) rak'ah after.
                 </p>
               )}
@@ -283,27 +280,27 @@ export default function DashboardPage() {
         </AnimatePresence>
       </div>
 
-      {/* ══ Quick access: Adhkar + Qibla + Quran ══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-7">
+      {/* ══ Quick access: Adhkar + Qibla ══ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-7">
         <Link href="/adhkar"
           className="flex items-center justify-between rounded-2xl px-5 py-4 transition group"
           style={{
             background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(139,92,246,0.08) 100%)',
-            border: '1px solid rgba(201,168,76,0.2)',
+            border: '1px solid var(--border-hover)',
           }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.2)' }}>
+              style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid var(--border-hover)' }}>
               <span className="text-lg">📿</span>
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#EDE8D8' }}>Adhkar</p>
-              <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Adhkar</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                 {new Date().getHours() < 15 ? '🌅 Morning' : '🌙 Evening'} azkaar
               </p>
             </div>
           </div>
-          <ArrowRight size={15} style={{ color: '#C9A84C' }}
+          <ArrowRight size={15} style={{ color: 'var(--gold)' }}
             className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
         </Link>
 
@@ -319,31 +316,11 @@ export default function DashboardPage() {
               <span className="text-lg">🧭</span>
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#EDE8D8' }}>Qibla Finder</p>
-              <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>Direction to Kaaba</p>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Qibla Finder</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>Direction to Kaaba</p>
             </div>
           </div>
           <ArrowRight size={15} style={{ color: '#2DD4BF' }}
-            className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
-        </Link>
-        {/* Quran */}
-        <Link href="/quran"
-          className="flex items-center justify-between rounded-2xl px-5 py-4 transition group"
-          style={{
-            background: 'linear-gradient(135deg, rgba(139,92,246,0.07) 0%, rgba(59,130,246,0.05) 100%)',
-            border: '1px solid rgba(139,92,246,0.2)',
-          }}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.2)' }}>
-              <span className="text-lg">📖</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold" style={{ color: '#EDE8D8' }}>Al-Quran</p>
-              <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>114 Surahs · Reader</p>
-            </div>
-          </div>
-          <ArrowRight size={15} style={{ color: '#8B5CF6' }}
             className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
         </Link>
       </div>
@@ -359,37 +336,6 @@ export default function DashboardPage() {
             </>
         }
       </div>
-
-      {/* ══ Upcoming events preview ══ */}
-      {events.length > 0 && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <p className="section-label mb-0">Upcoming Events</p>
-            <Link href="/events" className="text-xs font-medium flex items-center gap-1" style={{ color: '#C9A84C' }}>
-              View all <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {events.map((ev) => (
-              <Card key={ev._id} className="p-4 flex items-center gap-4 hover:border-gold-dim transition-all">
-                <div className="w-11 h-11 rounded-xl flex flex-col items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(201,168,76,0.08)' }}>
-                  <Calendar size={15} style={{ color: '#C9A84C' }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate" style={{ color: '#EDE8D8' }}>{ev.title}</p>
-                  <p className="text-xs mt-0.5 truncate" style={{ color: '#7A8FA8' }}>
-                    {ev.masjid} · {format(new Date(ev.date), 'EEE, MMM d')} at {ev.time && /[AaPp][Mm]/.test(ev.time) ? ev.time : ev.time ? (() => { try { return new Date(`2000-01-01T${ev.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); } catch { return ev.time; } })() : ''}
-                  </p>
-                </div>
-                <Link href={`/events/${ev._id}`} className="text-xs font-medium flex-shrink-0" style={{ color: '#C9A84C' }}>
-                  View →
-                </Link>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ══ Modals ══ */}
       <AzkarModal

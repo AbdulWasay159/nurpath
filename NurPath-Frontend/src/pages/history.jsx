@@ -54,15 +54,15 @@ function EditPrayerModal({ date, prayer, onSave, onClose }) {
       onClick={onClose}>
       <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         className="rounded-2xl p-6 w-full max-w-xs mx-4"
-        style={{ background: '#0F1620', border: '1px solid rgba(201,168,76,0.2)' }}
+        style={{ background: 'var(--bg-card)', border: '1px solid rgba(201,168,76,0.2)' }}
         onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-sm capitalize" style={{ color: '#EDE8D8' }}>
+          <h3 className="font-semibold text-sm capitalize" style={{ color: 'var(--text-primary)' }}>
             {PRAYER_META[prayer.name]?.icon} Edit {PRAYER_META[prayer.name]?.label}
           </h3>
-          <button onClick={onClose} style={{ color: '#3A4A60' }}><X size={16} /></button>
+          <button onClick={onClose} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
         </div>
-        <p className="text-xs mb-4" style={{ color: '#7A8FA8' }}>{date}</p>
+        <p className="text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>{date}</p>
         <div className="grid grid-cols-2 gap-2 mb-5">
           {STATUS_OPTS.map((s) => (
             <button key={s} onClick={() => setStatus(s)}
@@ -119,15 +119,15 @@ function EditSunnahModal({ date, sunnah, onSave, onClose }) {
       onClick={onClose}>
       <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         className="rounded-2xl p-6 w-full max-w-xs mx-4"
-        style={{ background: '#0F1620', border: '1px solid rgba(139,92,246,0.25)' }}
+        style={{ background: 'var(--bg-card)', border: '1px solid rgba(139,92,246,0.25)' }}
         onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-sm" style={{ color: '#EDE8D8' }}>
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
             {meta?.icon} Edit Sunnah — {meta?.label}
           </h3>
-          <button onClick={onClose} style={{ color: '#3A4A60' }}><X size={16} /></button>
+          <button onClick={onClose} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
         </div>
-        <p className="text-xs mb-4" style={{ color: '#7A8FA8' }}>{date} · {meta?.note}</p>
+        <p className="text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>{date} · {meta?.note}</p>
 
         {/* Status options */}
         <div className="grid grid-cols-3 gap-2 mb-4">
@@ -147,7 +147,7 @@ function EditSunnahModal({ date, sunnah, onSave, onClose }) {
         {/* Jumu'ah variant picker */}
         {isJumuah && status === 'done' && (
           <div className="mb-4">
-            <p className="text-xs mb-2" style={{ color: '#7A8FA8' }}>Where did you pray?</p>
+            <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>Where did you pray?</p>
             <div className="grid grid-cols-2 gap-2">
               {['masjid', 'home'].map((v) => (
                 <button key={v} onClick={() => setVariant(v)}
@@ -222,16 +222,16 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
         <button onClick={onToggle} className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-white/[0.02] transition">
           {/* Date block */}
           <div className="flex-shrink-0 w-14 text-center">
-            <div className="text-xs font-bold uppercase" style={{ color: '#7A8FA8' }}>{format(date, 'EEE')}</div>
+            <div className="text-xs font-bold uppercase" style={{ color: 'var(--text-secondary)' }}>{format(date, 'EEE')}</div>
             <div className="text-2xl font-bold leading-none mt-0.5" style={{ color: isToday ? '#C9A84C' : '#EDE8D8' }}>{format(date, 'd')}</div>
-            <div className="text-xs" style={{ color: '#3A4A60' }}>{format(date, 'MMM')}</div>
-            {isToday && <div className="text-xs font-semibold mt-0.5" style={{ color: '#C9A84C' }}>Today</div>}
+            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{format(date, 'MMM')}</div>
+            {isToday && <div className="text-xs font-semibold mt-0.5" style={{ color: 'var(--gold)' }}>Today</div>}
           </div>
 
           {/* Farz progress */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1.5">
-              <span className="text-sm font-medium" style={{ color: '#EDE8D8' }}>
+              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {done === 5 ? 'MashAllah! All 5 prayed ✓' : done === 0 ? 'No prayers recorded' : `${done} of 5 prayed`}
               </span>
               {missed > 0 && (
@@ -251,12 +251,12 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
             {/* Sunnah mini bar */}
             {sunnahTotal > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs w-12 flex-shrink-0" style={{ color: '#5A4A8A' }}>Sunnah</span>
+                <span className="text-xs w-12 flex-shrink-0" style={{ color: 'var(--purple)' }}>Sunnah</span>
                 <div className="flex-1 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
                   <motion.div className="h-full rounded-full" style={{ background: 'rgba(139,92,246,0.5)' }}
                     initial={{ width: 0 }} animate={{ width: `${sunnahPct}%` }} transition={{ duration: 0.6, delay: 0.1 }} />
                 </div>
-                <span className="text-xs font-semibold w-9 text-right" style={{ color: '#7C5FBF' }}>{sunnahDone}/{sunnahTotal}</span>
+                <span className="text-xs font-semibold w-9 text-right" style={{ color: 'var(--purple)' }}>{sunnahDone}/{sunnahTotal}</span>
               </div>
             )}
           </div>
@@ -266,7 +266,7 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
             {record.prayers.map((p) => <PrayerPill key={p.name} name={p.name} status={p.status} />)}
           </div>
 
-          <div className="flex-shrink-0" style={{ color: '#3A4A60' }}>
+          <div className="flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
         </button>
@@ -283,7 +283,7 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                 </div>
 
                 {/* ── Farz grid ── */}
-                <p className="text-xs font-semibold mb-2 uppercase tracking-widest" style={{ color: '#C9A84C' }}>Farz</p>
+                <p className="text-xs font-semibold mb-2 uppercase tracking-widest" style={{ color: 'var(--gold)' }}>Farz</p>
                 <div className="grid grid-cols-5 gap-3 mb-5">
                   {record.prayers.map((p) => {
                     const meta = PRAYER_META[p.name];
@@ -294,17 +294,17 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                         <span className="block text-xs font-semibold mb-1" style={{ color: col }}>{meta.label}</span>
                         <span className="block text-xs capitalize font-medium" style={{ color: col }}>{p.status === 'qada' ? 'Qaḍā' : p.status}</span>
                         {p.markedAt && (
-                          <span className="block text-xs mt-1" style={{ color: '#3A4A60' }}>
+                          <span className="block text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                             {format(new Date(p.markedAt), 'h:mm a')}
                           </span>
                         )}
                         {p.method && (
-                          <span className="block text-xs mt-1 capitalize" style={{ color: '#3A4A60' }}>{p.method}</span>
+                          <span className="block text-xs mt-1 capitalize" style={{ color: 'var(--text-muted)' }}>{p.method}</span>
                         )}
                         {!isToday && (
                           <button onClick={() => setEditingPrayer(p)}
                             className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition p-0.5 rounded"
-                            style={{ color: '#7A8FA8', background: 'rgba(0,0,0,0.4)' }} title="Edit">
+                            style={{ color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.4)' }} title="Edit">
                             <Edit2 size={10} />
                           </button>
                         )}
@@ -318,7 +318,7 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                   <>
                     <div className="flex items-center gap-2 mb-2">
                       <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#A78BFA' }}>Sunnah</p>
-                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.1)', color: '#7C5FBF' }}>
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(139,92,246,0.1)', color: 'var(--purple)' }}>
                         {sunnahDone}/{sunnahTotal} done
                       </span>
                     </div>
@@ -331,7 +331,7 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                           <div key={s.name} className="rounded-xl p-2.5 text-center relative group" style={{ background: `${col}12`, border: `1px solid ${col}30` }}>
                             <span className="block text-base mb-0.5">{meta?.icon}</span>
                             <span className="block font-semibold leading-tight mb-0.5" style={{ color: col, fontSize: '0.62rem' }}>{meta?.label}</span>
-                            <span className="block mb-1" style={{ color: '#3A4A60', fontSize: '0.58rem' }}>
+                            <span className="block mb-1" style={{ color: 'var(--text-muted)', fontSize: '0.58rem' }}>
                               {rakahs ? `${rakahs} rak` : s.name === 'jumuah_after' ? '?' : ''}
                             </span>
                             <span className="block font-medium capitalize" style={{ color: col, fontSize: '0.6rem' }}>
@@ -339,19 +339,19 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                             </span>
                             {/* Jumuah variant */}
                             {s.name === 'jumuah_after' && s.variant && (
-                              <span className="block mt-0.5" style={{ color: '#7C5FBF', fontSize: '0.55rem' }}>
+                              <span className="block mt-0.5" style={{ color: 'var(--purple)', fontSize: '0.55rem' }}>
                                 {s.variant === 'masjid' ? '🕌' : '🏠'} {s.variant}
                               </span>
                             )}
                             {s.markedAt && (
-                              <span className="block mt-0.5" style={{ color: '#2A3A50', fontSize: '0.55rem' }}>
+                              <span className="block mt-0.5" style={{ color: 'var(--text-muted)', fontSize: '0.55rem' }}>
                                 {format(new Date(s.markedAt), 'h:mm a')}
                               </span>
                             )}
                             {!isToday && (
                               <button onClick={() => setEditingSunnah(s)}
                                 className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition p-0.5 rounded"
-                                style={{ color: '#7A8FA8', background: 'rgba(0,0,0,0.4)' }} title="Edit">
+                                style={{ color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.4)' }} title="Edit">
                                 <Edit2 size={10} />
                               </button>
                             )}
@@ -364,13 +364,13 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
 
                 {/* Tips */}
                 {!isToday && (
-                  <p className="text-xs mt-1" style={{ color: '#3A4A60' }}>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                     💡 Hover a card and click the pencil to correct a past record.
                   </p>
                 )}
 
                 {record.notes && (
-                  <p className="text-sm italic mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#7A8FA8' }}>
+                  <p className="text-sm italic mt-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}>
                     📝 {record.notes}
                   </p>
                 )}
@@ -388,14 +388,16 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
 export default function HistoryPage() {
   const [history, setHistory]       = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
   const [days, setDays]             = useState(30);
   const [expandedDay, setExpandedDay] = useState(null);
 
   const load = () => {
     setLoading(true);
+    setError('');
     api.get(`/prayers/history?days=${days}`)
       .then((res) => setHistory(res.data.data || []))
-      .catch(() => {})
+      .catch(() => setError('Could not load prayer history. Check your connection and try again.'))
       .finally(() => setLoading(false));
   };
 
@@ -437,9 +439,9 @@ export default function HistoryPage() {
   return (
     <AppLayout>
       <div className="mb-8">
-        <p className="font-amiri text-sm mb-1" style={{ color: '#7A6130', direction: 'rtl' }}>وَأَقِيمُوا الصَّلَاةَ</p>
-        <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>Prayer History</h1>
-        <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>A record of your daily Salah — accountability with yourself and Allah.</p>
+        <p className="font-amiri text-sm mb-1" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>وَأَقِيمُوا الصَّلَاةَ</p>
+        <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>Prayer History</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>A record of your daily Salah — accountability with yourself and Allah.</p>
       </div>
 
       {/* Range selector */}
@@ -453,7 +455,7 @@ export default function HistoryPage() {
             </button>
           ))}
         </div>
-        {!loading && <span className="text-sm" style={{ color: '#3A4A60' }}>{history.length} records</span>}
+        {!loading && <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{history.length} records</span>}
       </div>
 
       {/* Summary cards */}
@@ -465,12 +467,12 @@ export default function HistoryPage() {
               { icon: '✅', label: 'Total Prayed',    value: totalDone,       color: '#22C55E' },
               { icon: '❌', label: 'Total Missed',    value: totalMissed,     color: '#EF4444' },
               { icon: '⭐', label: 'Perfect Days',    value: perfectDays,     color: '#2DD4BF' },
-              { icon: '📊', label: 'Avg Completion',  value: `${avgCompletion}%`, color: '#C9A84C' },
+              { icon: '📊', label: 'Avg Completion',  value: `${avgCompletion}%`, color: 'var(--gold)' },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: `${s.color}0D`, border: `1px solid ${s.color}25` }}>
                 <div className="text-2xl mb-1">{s.icon}</div>
                 <div className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{s.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -479,30 +481,30 @@ export default function HistoryPage() {
           <div className="grid grid-cols-3 gap-3 mb-5">
             {[
               { icon: '🌟', label: 'Sunnah Done',    value: sunnahTotalDone,    color: '#A78BFA' },
-              { icon: '➖', label: 'Sunnah Skipped', value: sunnahTotalSkipped, color: '#3A4A60' },
+              { icon: '➖', label: 'Sunnah Skipped', value: sunnahTotalSkipped, color: 'var(--text-muted)' },
               { icon: '📈', label: 'Sunnah Rate',    value: `${sunnahAvgPct}%`, color: '#8B5CF6' },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: `${s.color}0D`, border: `1px solid ${s.color}25` }}>
                 <div className="text-xl mb-1">{s.icon}</div>
                 <div className="text-xl font-bold" style={{ color: s.color }}>{s.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{s.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{s.label}</div>
               </div>
             ))}
           </div>
 
           {/* Farz per-prayer breakdown */}
           <div className="rounded-2xl p-5 mb-5" style={{ background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.1)' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: '#C9A84C' }}>Farz Breakdown — last {days} days</h2>
+            <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--gold)' }}>Farz Breakdown — last {days} days</h2>
             <div className="space-y-3">
               {byPrayer.map(({ name, done, missed, pct }) => (
                 <div key={name} className="flex items-center gap-3">
-                  <span className="text-sm w-16 font-medium capitalize" style={{ color: '#EDE8D8' }}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                  <span className="text-sm w-16 font-medium capitalize" style={{ color: 'var(--text-primary)' }}>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
                   <div className="flex-1 h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
                     <motion.div className="h-full rounded-full" style={{ background: pct === 100 ? '#22C55E' : pct >= 60 ? '#C9A84C' : '#EF4444' }}
                       initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7, delay: 0.05 }} />
                   </div>
-                  <span className="text-xs font-semibold w-9 text-right" style={{ color: '#7A8FA8' }}>{pct}%</span>
-                  <span className="text-xs w-20 text-right" style={{ color: '#3A4A60' }}>
+                  <span className="text-xs font-semibold w-9 text-right" style={{ color: 'var(--text-secondary)' }}>{pct}%</span>
+                  <span className="text-xs w-20 text-right" style={{ color: 'var(--text-muted)' }}>
                     {done}✓ {missed > 0 ? `${missed}✗` : ''}
                   </span>
                 </div>
@@ -516,15 +518,15 @@ export default function HistoryPage() {
             <div className="space-y-3">
               {bySunnah.map(({ name, done, total, pct }) => (
                 <div key={name} className="flex items-center gap-3">
-                  <span className="text-xs w-24 font-medium" style={{ color: '#C0B0E8', fontSize: '0.7rem' }}>
+                  <span className="text-xs w-24 font-medium" style={{ color: 'var(--purple)', fontSize: '0.7rem' }}>
                     {SUNNAH_META[name]?.label} ({SUNNAH_META[name]?.rakahs}r)
                   </span>
                   <div className="flex-1 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
                     <motion.div className="h-full rounded-full" style={{ background: pct >= 80 ? '#A78BFA' : pct >= 50 ? '#7C5FBF' : '#3A2A60' }}
                       initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7, delay: 0.05 }} />
                   </div>
-                  <span className="text-xs font-semibold w-9 text-right" style={{ color: '#7C5FBF' }}>{pct}%</span>
-                  <span className="text-xs w-16 text-right" style={{ color: '#3A4A60' }}>
+                  <span className="text-xs font-semibold w-9 text-right" style={{ color: 'var(--purple)' }}>{pct}%</span>
+                  <span className="text-xs w-16 text-right" style={{ color: 'var(--text-muted)' }}>
                     {done}/{total}
                   </span>
                 </div>
@@ -532,15 +534,15 @@ export default function HistoryPage() {
               {/* Jumu'ah row */}
               {jumuahDays.length > 0 && (
                 <div className="flex items-center gap-3 pt-2" style={{ borderTop: '1px solid rgba(139,92,246,0.1)' }}>
-                  <span className="text-xs w-24 font-medium" style={{ color: '#C0B0E8', fontSize: '0.7rem' }}>
+                  <span className="text-xs w-24 font-medium" style={{ color: 'var(--purple)', fontSize: '0.7rem' }}>
                     🕌 Jumu'ah
                   </span>
                   <div className="flex-1 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
                     <motion.div className="h-full rounded-full" style={{ background: jumuahPct >= 80 ? '#A78BFA' : '#7C5FBF' }}
                       initial={{ width: 0 }} animate={{ width: `${jumuahPct}%` }} transition={{ duration: 0.7 }} />
                   </div>
-                  <span className="text-xs font-semibold w-9 text-right" style={{ color: '#7C5FBF' }}>{jumuahPct}%</span>
-                  <span className="text-xs w-16 text-right" style={{ color: '#3A4A60' }}>{jumuahDone}/{jumuahDays.length}</span>
+                  <span className="text-xs font-semibold w-9 text-right" style={{ color: 'var(--purple)' }}>{jumuahPct}%</span>
+                  <span className="text-xs w-16 text-right" style={{ color: 'var(--text-muted)' }}>{jumuahDone}/{jumuahDays.length}</span>
                 </div>
               )}
             </div>
@@ -549,15 +551,21 @@ export default function HistoryPage() {
       )}
 
       {/* History list */}
+      {error && !loading && (
+        <div className="rounded-2xl p-6 mb-4 flex items-center justify-between" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <p className="text-sm" style={{ color: '#EF4444' }}>⚠ {error}</p>
+          <button onClick={load} className="text-xs px-3 py-1.5 rounded-lg ml-4" style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444' }}>Retry</button>
+        </div>
+      )}
       {loading ? (
         <div className="space-y-3">
           {[...Array(7)].map((_, i) => <div key={i} className="h-16 rounded-2xl animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
         </div>
-      ) : history.length === 0 ? (
+      ) : history.length === 0 && !error ? (
         <div className="rounded-2xl p-16 text-center" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
           <p className="text-5xl mb-4">📿</p>
-          <h2 className="text-xl font-semibold mb-2" style={{ color: '#EDE8D8' }}>No records yet</h2>
-          <p className="text-sm" style={{ color: '#7A8FA8' }}>Start marking your prayers today and they will appear here.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No records yet</h2>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Start marking your prayers today and they will appear here.</p>
         </div>
       ) : (
         <div className="space-y-2">

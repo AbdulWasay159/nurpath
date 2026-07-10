@@ -11,7 +11,8 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('nurpath_token');
     const cached = localStorage.getItem('nurpath_user');
     if (token && cached) {
-      setUser(JSON.parse(cached));
+      // Guard against malformed cache — a corrupted value would crash the app
+      try { setUser(JSON.parse(cached)); } catch { localStorage.removeItem('nurpath_user'); }
       api.get('/auth/me')
         .then((res) => {
           setUser(res.data.user);

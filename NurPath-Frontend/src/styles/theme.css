@@ -1,0 +1,49 @@
+/* ─────────────────────────────────────────────────────────────────
+   NurPath Theme — CSS Custom Properties
+   Dark mode only.
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Accents (same in both modes) ── */
+  --gold:           #C9A84C;
+  --gold-light:     #E8C97A;
+  --gold-dim:       #7A6130;
+  --teal:           #2DD4BF;
+  --purple:         #A78BFA;
+  --success:        #22C55E;
+  --warning:        #F59E0B;
+  --error:          #EF4444;
+
+  /* ── Dark mode (default) ── */
+  --bg-deep:        #080D13;
+  --bg-card:        #0F1620;
+  --bg-surface:     #162030;
+  --bg-hover:       #1C2A40;
+  --bg-input:       #111B28;
+  --bg-overlay:     rgba(0,0,0,0.65);
+
+  --text-primary:   #EDE8D8;
+  --text-secondary: #7A8FA8;
+  --text-muted:     #3A4A60;
+  --text-gold:      #C9A84C;
+  --text-gold-dim:  #7A6130;
+
+  --border:         rgba(201,168,76,0.12);
+  --border-hover:   rgba(201,168,76,0.35);
+  --border-subtle:  rgba(255,255,255,0.06);
+
+  /* skeleton animation colors */
+  --skeleton-base:  #162030;
+  --skeleton-shine: #1C2A40;
+
+  /* ── Gradient overlays ── */
+  --gradient-radial-gold: radial-gradient(ellipse at 15% 15%, rgba(201,168,76,0.06) 0%, transparent 55%);
+  --gradient-radial-teal: radial-gradient(ellipse at 85% 85%, rgba(45,212,191,0.05) 0%, transparent 55%);
+
+  /* pattern stroke for Islamic geometric background */
+  --pattern-stroke: rgba(201,168,76,0.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

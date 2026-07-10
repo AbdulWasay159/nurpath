@@ -9,7 +9,7 @@ const TYPE_COLORS = {
   info:    { bg: 'rgba(59,130,246,0.1)',   color: '#3B82F6',  icon: 'ℹ️' },
   success: { bg: 'rgba(34,197,94,0.1)',    color: '#22C55E',  icon: '✅' },
   warning: { bg: 'rgba(249,115,22,0.1)',   color: '#F97316',  icon: '⚠️' },
-  event:   { bg: 'rgba(201,168,76,0.1)',   color: '#C9A84C',  icon: '📅' },
+  event:   { bg: 'rgba(201,168,76,0.1)',   color: 'var(--gold)',  icon: '📅' },
   prayer:  { bg: 'rgba(139,92,246,0.1)',   color: '#8B5CF6',  icon: '🕌' },
 };
 
@@ -64,11 +64,11 @@ export default function NotificationsPage() {
     <AppLayout>
       <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="font-amiri text-sm mb-1" style={{ color: '#7A6130', direction: 'rtl' }}>
+          <p className="font-amiri text-sm mb-1" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>
             الإشعارات
           </p>
-          <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>Notifications</h1>
-          <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>
+          <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>Notifications</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             {unreadCount > 0
               ? `You have ${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}.`
               : 'All caught up!'}
@@ -82,7 +82,7 @@ export default function NotificationsPage() {
             style={{
               background: 'rgba(201,168,76,0.1)',
               border: '1px solid rgba(201,168,76,0.25)',
-              color: '#C9A84C',
+              color: 'var(--gold)',
             }}>
             <Check size={14} />
             {markingAll ? 'Marking…' : 'Mark all read'}
@@ -101,9 +101,9 @@ export default function NotificationsPage() {
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl p-16 text-center"
           style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-          <BellOff size={40} className="mx-auto mb-4" style={{ color: '#3A4A60' }} />
-          <h2 className="text-xl font-semibold mb-2" style={{ color: '#EDE8D8' }}>No notifications yet</h2>
-          <p className="text-sm" style={{ color: '#7A8FA8' }}>
+          <BellOff size={40} className="mx-auto mb-4" style={{ color: 'var(--text-muted)' }} />
+          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No notifications yet</h2>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             You'll see updates about events, prayer reminders, and community activity here.
           </p>
         </motion.div>
@@ -128,11 +128,11 @@ export default function NotificationsPage() {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium" style={{ color: '#EDE8D8' }}>{n.title || n.message}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{n.title || n.message}</p>
                   {n.title && n.message && (
-                    <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{n.message}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{n.message}</p>
                   )}
-                  <p className="text-xs mt-1.5" style={{ color: '#3A4A60' }}>
+                  <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
                     {format(new Date(n.createdAt), 'EEE, MMM d · h:mm a')}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default function NotificationsPage() {
                     onClick={() => deleteNotification(n._id)}
                     title="Delete"
                     className="p-1.5 rounded-lg transition hover:bg-white/10"
-                    style={{ color: '#3A4A60' }}>
+                    style={{ color: 'var(--text-muted)' }}>
                     <Trash2 size={14} />
                   </button>
                 </div>

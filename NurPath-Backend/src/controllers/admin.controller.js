@@ -1,25 +1,19 @@
 const User = require('../models/User.model');
-const Event = require('../models/Event.model');
 const PrayerTracking = require('../models/PrayerTracking.model');
 const Notification = require('../models/Notification.model');
 const { asyncHandler } = require('../middleware/error.middleware');
 
 // GET /api/admin/dashboard
 const getDashboard = asyncHandler(async (req, res) => {
-  const [totalUsers, totalEvents, totalPrayers, recentUsers] = await Promise.all([
+  const [totalUsers, totalPrayers, recentUsers] = await Promise.all([
     User.countDocuments({ role: 'user' }),
-    Event.countDocuments({ isActive: true }),
     PrayerTracking.countDocuments(),
     User.find({ role: 'user' }).sort({ createdAt: -1 }).limit(5).select('name email createdAt city'),
   ]);
 
-  const upcomingEvents = await Event.find({ isActive: true, date: { $gte: new Date() } })
-    .sort({ date: 1 })
-    .limit(5);
-
   res.json({
     success: true,
-    data: { totalUsers, totalEvents, totalPrayers, recentUsers, upcomingEvents },
+    data: { totalUsers, totalPrayers, recentUsers },
   });
 });
 

@@ -76,12 +76,12 @@ export default function ResetPasswordPage() {
               <ShieldCheck size={24} style={{ color: '#C9A84C' }} />
             </div>
             <h1 className="font-amiri text-3xl mb-1" style={{ color: '#C9A84C' }}>Set a New Password</h1>
-            <p className="text-sm mt-2" style={{ color: '#7A8FA8' }}>Choose something strong you haven't used before.</p>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>Choose something strong you haven't used before.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>
                 New Password
               </label>
               <div className="relative">
@@ -92,7 +92,7 @@ export default function ResetPasswordPage() {
                   autoComplete="new-password"
                 />
                 <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: '#3A4A60' }}>
+                  className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>
                 Confirm Password
               </label>
               <div className="relative">
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <p className="text-center mt-5 text-xs">
-          <Link href="/login" style={{ color: '#3A4A60' }} className="hover:text-gold-dim">← Back to login</Link>
+          <Link href="/login" style={{ color: 'var(--text-muted)' }} className="hover:text-gold-dim">← Back to login</Link>
         </p>
       </motion.div>
     </div>

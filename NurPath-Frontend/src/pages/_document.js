@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
       <Head>
         {/* PWA manifest */}
         <link rel="manifest" href="/manifest.json" />
@@ -26,15 +26,7 @@ export default function Document() {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
         {/* App description for SEO */}
-        <meta name="description" content="Track your daily Salah, find prayer times, view masjid timings, and stay connected to your deen." />
-
-        {/* Quranic Arabic fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Scheherazade+New:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        <meta name="description" content="Track your daily Salah and adhkar, and stay connected to your deen." />
       </Head>
       <body>
         <Main />

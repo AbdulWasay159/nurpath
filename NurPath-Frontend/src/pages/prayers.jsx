@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import AppLayout from '../components/layout/AppLayout';
 import api from '../lib/api';
-import { Clock, MapPin, Navigation, RefreshCw } from 'lucide-react';
+import { MapPin, Navigation, RefreshCw } from 'lucide-react';
 
 const PRAYER_NAMES = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
@@ -47,7 +47,14 @@ function PrayerTimesSection() {
   const [hijri, setHijri]                 = useState(null);
   const [cityLabel, setCityLabel]         = useState('');
   const [inputCity, setInputCity]         = useState('');
-  const [method, setMethod]               = useState(17); // Ahle Hadees default
+  const [method, setMethod]               = useState(() => {
+    // Restore previously chosen calculation method (persisted across sessions)
+    if (typeof window !== 'undefined') {
+      const saved = parseInt(localStorage.getItem('nurpath_calc_method'));
+      if (!isNaN(saved)) return saved;
+    }
+    return 17; // Ahle Hadees default
+  });
   const [loading, setLoading]             = useState(false);
   const [locLoading, setLocLoading]       = useState(false);
   const [error, setError]                 = useState('');
@@ -154,9 +161,10 @@ function PrayerTimesSection() {
   // ── Auto-detect on mount ──
   useEffect(() => { detectLocation(); }, []);
 
-  // ── Re-fetch when method changes ──
+  // ── Re-fetch when method changes + persist preference ──
   const handleMethodChange = (newMethod) => {
     setMethod(newMethod);
+    localStorage.setItem('nurpath_calc_method', String(newMethod));
     if (coordsCache) fetchByCoords(coordsCache.lat, coordsCache.lng, newMethod);
     else if (inputCity.trim()) fetchByCity(inputCity, newMethod);
   };
@@ -196,11 +204,11 @@ function PrayerTimesSection() {
       <div className="rounded-2xl p-4 mb-5"
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#7A8FA8' }}>
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
             Calculation Method
           </span>
           <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
-            style={{ background: 'rgba(201,168,76,0.15)', color: '#C9A84C' }}>
+            style={{ background: 'rgba(201,168,76,0.15)', color: 'var(--gold)' }}>
             {methodLabel}
           </span>
         </div>
@@ -217,8 +225,8 @@ function PrayerTimesSection() {
             </button>
           ))}
         </div>
-        <p className="text-xs mt-3" style={{ color: '#3A4A60' }}>
-          💡 Hover any method to see its region · For South Asia use <strong style={{ color: '#C9A84C' }}>Ahle Hadees</strong> or <strong style={{ color: '#C9A84C' }}>Karachi (Hanafi)</strong>
+        <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
+          💡 Hover any method to see its region · For South Asia use <strong style={{ color: 'var(--gold)' }}>Ahle Hadees</strong> or <strong style={{ color: 'var(--gold)' }}>Karachi (Hanafi)</strong>
         </p>
       </div>
 
@@ -229,12 +237,12 @@ function PrayerTimesSection() {
       {/* ── Location + Hijri ── */}
       {cityLabel && !busy && (
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <p className="text-sm flex items-center gap-1.5" style={{ color: '#7A8FA8' }}>
-            <MapPin size={13} style={{ color: '#C9A84C' }} />
+          <p className="text-sm flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+            <MapPin size={13} style={{ color: 'var(--gold)' }} />
             {cityLabel}
           </p>
           {hijri && (
-            <p className="font-amiri text-sm" style={{ color: '#C9A84C' }}>
+            <p className="font-amiri text-sm" style={{ color: 'var(--gold)' }}>
               {hijri.day} {hijri.month.en} {hijri.year} AH
             </p>
           )}
@@ -246,15 +254,15 @@ function PrayerTimesSection() {
         <div className="rounded-2xl p-5 mb-6 flex items-center justify-between"
           style={{ background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.18)' }}>
           <div>
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#7A6130' }}>Next Prayer</p>
-            <p className="text-xl font-semibold" style={{ color: '#C9A84C' }}>
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--gold-dim)' }}>Next Prayer</p>
+            <p className="text-xl font-semibold" style={{ color: 'var(--gold)' }}>
               {nextPrayer.label}
-              <span className="font-amiri text-base ml-2" style={{ color: '#7A6130' }}>{nextPrayer.arabic}</span>
+              <span className="font-amiri text-base ml-2" style={{ color: 'var(--gold-dim)' }}>{nextPrayer.arabic}</span>
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#7A6130' }}>In</p>
-            <p className="text-3xl font-bold tabular-nums" style={{ color: '#C9A84C' }}>{countdown}</p>
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--gold-dim)' }}>In</p>
+            <p className="text-3xl font-bold tabular-nums" style={{ color: 'var(--gold)' }}>{countdown}</p>
           </div>
         </div>
       )}
@@ -289,7 +297,7 @@ function PrayerTimesSection() {
                     style={{ color: isNext ? '#C9A84C' : '#EDE8D8' }}>
                     {meta.label}
                   </span>
-                  <span className="block font-amiri text-xs mb-3" style={{ color: '#7A6130' }}>
+                  <span className="block font-amiri text-xs mb-3" style={{ color: 'var(--gold-dim)' }}>
                     {meta.arabic}
                   </span>
                   <span className="block text-sm font-bold"
@@ -297,19 +305,19 @@ function PrayerTimesSection() {
                     {fmt12(raw)}
                   </span>
                   {isNext && (
-                    <span className="block text-xs mt-2 font-semibold" style={{ color: '#C9A84C' }}>
+                    <span className="block text-xs mt-2 font-semibold" style={{ color: 'var(--gold)' }}>
                       Next ▸
                     </span>
                   )}
                   {isSunrise && (
-                    <span className="block text-xs mt-1" style={{ color: '#3A4A60' }}>no salah</span>
+                    <span className="block text-xs mt-1" style={{ color: 'var(--text-muted)' }}>no salah</span>
                   )}
                 </div>
               );
             })}
           </div>
 
-          <p className="text-xs text-center" style={{ color: '#3A4A60' }}>
+          <p className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
             Powered by AlAdhan API · Method: {methodLabel}
           </p>
         </>
@@ -318,182 +326,22 @@ function PrayerTimesSection() {
   );
 }
 
-// ── Masjid Timings Tab ────────────────────────────────────────────────────
-function MasjidTimingsSection({ masjids, loading }) {
-  const [selected, setSelected] = useState(0);
-
-  const fmt12masjid = (t) => {
-    if (!t) return '—';
-    try {
-      return new Date(`2000-01-01T${t}`).toLocaleTimeString('en-US', {
-        hour: 'numeric', minute: '2-digit', hour12: true,
-      });
-    } catch { return t; }
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        {[...Array(2)].map((_, i) => (
-          <div key={i} className="h-36 rounded-2xl animate-pulse"
-            style={{ background: 'rgba(255,255,255,0.05)' }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!masjids || masjids.length === 0) {
-    return (
-      <div className="rounded-2xl p-14 text-center"
-        style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
-        <p className="text-4xl mb-3">🕌</p>
-        <p className="text-sm mb-1" style={{ color: '#7A8FA8' }}>No masjid timings registered yet.</p>
-        <p className="text-xs" style={{ color: '#3A4A60' }}>Ask your admin to add them.</p>
-      </div>
-    );
-  }
-
-  const masjid = masjids[selected];
-
-  return (
-    <div>
-      {masjids.length > 1 && (
-        <div className="flex gap-2 mb-5 flex-wrap">
-          {masjids.map((m, i) => (
-            <button key={m._id} onClick={() => setSelected(i)}
-              className="px-4 py-2 rounded-xl text-sm font-medium transition"
-              style={{
-                background: selected === i ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${selected === i ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                color: selected === i ? '#C9A84C' : '#7A8FA8',
-              }}>
-              {m.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="rounded-2xl overflow-hidden"
-        style={{ border: '1px solid rgba(201,168,76,0.2)', background: 'rgba(201,168,76,0.03)' }}>
-
-        {/* Header */}
-        <div className="px-6 py-5 flex items-start gap-4"
-          style={{ borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
-          <span className="text-3xl">🕌</span>
-          <div>
-            <h3 className="font-semibold text-lg" style={{ color: '#C9A84C' }}>{masjid.name}</h3>
-            {masjid.address && (
-              <p className="text-sm mt-0.5 flex items-center gap-1" style={{ color: '#7A8FA8' }}>
-                <MapPin size={12} />{masjid.address}
-              </p>
-            )}
-            {masjid.phone && (
-              <p className="text-xs mt-0.5" style={{ color: '#3A4A60' }}>📞 {masjid.phone}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Timings grid */}
-        <div className="grid grid-cols-5">
-          {PRAYER_NAMES.map((name, idx) => {
-            const meta = PRAYER_META[name];
-            const time = masjid.timings?.[name];
-            return (
-              <div key={name} className="px-3 py-5 text-center"
-                style={{ borderRight: idx < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                <span className="block text-2xl mb-2">{meta.icon}</span>
-                <span className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#EDE8D8' }}>{meta.label}</span>
-                <span className="block font-amiri text-xs mb-2.5"
-                  style={{ color: '#7A6130' }}>{meta.arabic}</span>
-                <span className="block text-sm font-bold"
-                  style={{ color: time ? '#C9A84C' : '#3A4A60' }}>
-                  {fmt12masjid(time)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {masjid.jumuahTime && (
-          <div className="px-6 py-3 flex items-center gap-2 text-sm"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#7A8FA8' }}>
-            <Clock size={13} style={{ color: '#C9A84C' }} />
-            <span>Jumu'ah:</span>
-            <span className="font-semibold ml-1" style={{ color: '#C9A84C' }}>
-              {fmt12masjid(masjid.jumuahTime)}
-            </span>
-            {masjid.jumuahKhatib && (
-              <span style={{ color: '#3A4A60' }}>· {masjid.jumuahKhatib}</span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ── Main Page ─────────────────────────────────────────────────────────────
 export default function PrayersPage() {
-  const [masjids, setMasjids]           = useState([]);
-  const [loadingMasjids, setLoadingMasjids] = useState(true);
-  const [activeTab, setActiveTab]       = useState('prayertimes');
-
-  useEffect(() => {
-    api.get('/masjids')
-      .then((r) => setMasjids(r.data.data || []))
-      .catch(() => {})
-      .finally(() => setLoadingMasjids(false));
-  }, []);
-
-  const tabs = [
-    { id: 'prayertimes', label: 'Prayer Times',   icon: '🕐' },
-    { id: 'masjids',     label: 'Masjid Timings', icon: '🕌' },
-  ];
-
   return (
     <AppLayout>
       <div className="mb-8">
         <p className="font-amiri text-sm mb-1"
-          style={{ color: '#7A6130', direction: 'rtl' }}>أَقِمِ الصَّلَاةَ</p>
-        <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>Prayers</h1>
-        <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>
-          Prayer times for your location and local masjid timings.
+          style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>أَقِمِ الصَّلَاةَ</p>
+        <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>Prayers</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+          Prayer times for your location.
         </p>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex gap-2 mb-8 p-1 rounded-2xl w-fit"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-        {tabs.map((tab) => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className="px-6 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
-            style={{
-              background: activeTab === tab.id ? 'rgba(201,168,76,0.15)' : 'transparent',
-              border: `1px solid ${activeTab === tab.id ? 'rgba(201,168,76,0.35)' : 'transparent'}`,
-              color: activeTab === tab.id ? '#C9A84C' : '#7A8FA8',
-            }}>
-            <span>{tab.icon}</span>
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'prayertimes' && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <PrayerTimesSection />
-        </motion.div>
-      )}
-
-      {activeTab === 'masjids' && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-semibold" style={{ color: '#EDE8D8' }}>Masjid Timings</h2>
-            <p className="text-xs" style={{ color: '#3A4A60' }}>Managed by admin</p>
-          </div>
-          <MasjidTimingsSection masjids={masjids} loading={loadingMasjids} />
-        </motion.div>
-      )}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <PrayerTimesSection />
+      </motion.div>
     </AppLayout>
   );
 }

@@ -22,10 +22,9 @@ try { mongoSanitize = require('express-mongo-sanitize'); } catch {}
 const authRoutes         = require('./routes/auth.routes');
 const userRoutes         = require('./routes/user.routes');
 const prayerRoutes       = require('./routes/prayer.routes');
-const eventRoutes        = require('./routes/event.routes');
-const masjidRoutes       = require('./routes/masjid.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const adminRoutes        = require('./routes/admin.routes');
+const adhkarRoutes       = require('./routes/adhkar.routes');
 const { errorHandler }   = require('./middleware/error.middleware');
 
 const app = express();
@@ -82,10 +81,9 @@ if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 app.use('/api/auth',          authRoutes);
 app.use('/api/users',         userRoutes);
 app.use('/api/prayers',       prayerRoutes);
-app.use('/api/events',        eventRoutes);
-app.use('/api/masjids',       masjidRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin',         adminRoutes);
+app.use('/api/adhkar',        adhkarRoutes);
 
 // ── Health check ──
 app.get('/api/health', (req, res) => {
@@ -99,16 +97,30 @@ app.use((req, res) => res.status(404).json({ success: false, message: 'Route not
 app.use(errorHandler);
 
 // ── Connect DB then start server ──
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
+// Set MONGO_URI=memory in .env to spin up a throwaway in-memory MongoDB —
+// useful for trying the app locally without setting up a real database.
+// Data does not persist across restarts in this mode.
+async function start() {
+  let mongoUri = process.env.MONGO_URI;
+
+  if (mongoUri === 'memory') {
+    const { MongoMemoryServer } = require('mongodb-memory-server');
+    const mem = await MongoMemoryServer.create();
+    mongoUri = mem.getUri();
+    console.log('🧪 Using in-memory MongoDB (data will not persist across restarts)');
+  }
+
+  try {
+    await mongoose.connect(mongoUri);
     console.log('✅ MongoDB connected');
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`🚀 NurPath API running on port ${PORT}`));
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error('❌ MongoDB error:', err.message);
     process.exit(1);
-  });
+  }
+}
+
+start();
 
 module.exports = app;

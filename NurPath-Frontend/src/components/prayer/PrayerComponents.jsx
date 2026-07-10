@@ -67,14 +67,14 @@ export function PrayerRing({ prayers = [] }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-bold" style={{ color: done === 5 ? '#22C55E' : '#2DD4BF' }}>{pct}%</span>
-          <span className="text-xs" style={{ color: '#3A4A60' }}>today</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>today</span>
         </div>
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-1" style={{ color: done === 5 ? '#22C55E' : '#EDE8D8' }}>{msg}</h2>
-        <p className="text-sm mb-4" style={{ color: '#7A8FA8' }}>
+        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
           {done === 5
             ? 'جَزَاكَ اللَّهُ خَيْرًا — May Allah reward you'
             : 'Tap a prayer card to choose Done, Missed, or Qaḍā.'}
@@ -86,7 +86,7 @@ export function PrayerRing({ prayers = [] }) {
             return (
               <div key={p.name} className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full transition-all" style={{ background: color }} />
-                <span className="text-xs" style={{ color: '#7A8FA8' }}>{PRAYER_META[p.name]?.label}</span>
+                <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{PRAYER_META[p.name]?.label}</span>
               </div>
             );
           })}
@@ -101,7 +101,7 @@ export function PrayerRing({ prayers = [] }) {
               {missed} missed
             </span>
           )}
-          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(58,74,96,0.3)', color: '#7A8FA8' }}>
+          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(58,74,96,0.3)', color: 'var(--text-secondary)' }}>
             {5 - done - missed} pending
           </span>
         </div>
@@ -160,18 +160,18 @@ function PrayerStatusModal({ prayer, onChoose, onClose }) {
         exit={{ y: 80, opacity: 0 }}
         transition={{ type: 'spring', damping: 26, stiffness: 300 }}
         className="w-full max-w-sm mx-4 mb-6 sm:mb-0 rounded-2xl overflow-hidden"
-        style={{ background: '#0B1420', border: '1px solid rgba(201,168,76,0.2)' }}
+        style={{ background: 'var(--bg-card)', border: '1px solid rgba(201,168,76,0.2)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-6 pt-6 pb-4 text-center"
           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <span className="text-3xl block mb-2">{meta?.icon}</span>
-          <p className="font-amiri text-xl" style={{ color: '#C9A84C' }}>{meta?.arabic}</p>
-          <h3 className="text-base font-semibold mt-0.5" style={{ color: '#EDE8D8' }}>
+          <p className="font-amiri text-xl" style={{ color: 'var(--gold)' }}>{meta?.arabic}</p>
+          <h3 className="text-base font-semibold mt-0.5" style={{ color: 'var(--text-primary)' }}>
             {meta?.label} Prayer
           </h3>
-          <p className="text-xs mt-1" style={{ color: '#3A4A60' }}>How did it go?</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>How did it go?</p>
         </div>
 
         {/* Options */}
@@ -199,7 +199,7 @@ function PrayerStatusModal({ prayer, onChoose, onClose }) {
                   <span className="text-sm font-bold" style={{ color: opt.color }}>{opt.label}</span>
                   <span className="font-amiri text-sm" style={{ color: `${opt.color}80` }}>{opt.arabic}</span>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{opt.sub}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{opt.sub}</p>
               </div>
               {/* Arrow */}
               <span className="text-sm flex-shrink-0" style={{ color: `${opt.color}60` }}>›</span>
@@ -212,7 +212,7 @@ function PrayerStatusModal({ prayer, onChoose, onClose }) {
           <button
             onClick={onClose}
             className="w-full py-2.5 rounded-xl text-sm transition"
-            style={{ color: '#3A4A60', border: '1px solid rgba(255,255,255,0.05)' }}
+            style={{ color: 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.05)' }}
           >
             Cancel
           </button>
@@ -265,10 +265,10 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
         <span className="block text-xs font-bold mb-0.5" style={{ color: s.nameColor, letterSpacing: '0.5px' }}>
           {meta?.label}
         </span>
-        <span className="block font-amiri text-xs mb-1" style={{ color: '#7A6130' }}>{meta?.arabic}</span>
+        <span className="block font-amiri text-xs mb-1" style={{ color: 'var(--gold-dim)' }}>{meta?.arabic}</span>
 
         {prayerTime && (
-          <span className="block text-xs mb-2 flex items-center justify-center gap-1" style={{ color: '#3A4A60' }}>
+          <span className="block text-xs mb-2 flex items-center justify-center gap-1" style={{ color: 'var(--text-muted)' }}>
             <Clock size={9} />
             {prayerTime}
           </span>
@@ -334,7 +334,7 @@ function SunnahStatusModal({ sunnah, onChoose, onClose }) {
       label: 'Reset',
       arabic: 'إِعَادَةٌ',
       sub: 'Mark as not yet decided',
-      color: '#3A4A60',
+      color: 'var(--text-muted)',
       bg: 'rgba(58,74,96,0.08)',
       border: 'rgba(58,74,96,0.3)',
       icon: <RotateCcw size={16} />,
@@ -364,7 +364,7 @@ function SunnahStatusModal({ sunnah, onChoose, onClose }) {
         exit={{ y: 80, opacity: 0 }}
         transition={{ type: 'spring', damping: 26, stiffness: 300 }}
         className="w-full max-w-sm mx-4 mb-6 sm:mb-0 rounded-2xl overflow-hidden"
-        style={{ background: '#0B1420', border: '1px solid rgba(139,92,246,0.25)' }}
+        style={{ background: 'var(--bg-card)', border: '1px solid rgba(139,92,246,0.25)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -372,11 +372,11 @@ function SunnahStatusModal({ sunnah, onChoose, onClose }) {
           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <span className="text-3xl block mb-2">{meta?.icon}</span>
           <p className="font-amiri text-lg" style={{ color: '#A78BFA' }}>{meta?.arabic}</p>
-          <h3 className="text-sm font-semibold mt-0.5" style={{ color: '#EDE8D8' }}>
+          <h3 className="text-sm font-semibold mt-0.5" style={{ color: 'var(--text-primary)' }}>
             {meta?.label} Sunnah
           </h3>
           {meta?.note && (
-            <p className="text-xs mt-1" style={{ color: '#3A4A60' }}>{meta.note}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{meta.note}</p>
           )}
         </div>
 
@@ -400,7 +400,7 @@ function SunnahStatusModal({ sunnah, onChoose, onClose }) {
                   <span className="text-sm font-bold" style={{ color: opt.color }}>{opt.label}</span>
                   <span className="font-amiri text-sm" style={{ color: `${opt.color}70` }}>{opt.arabic}</span>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{opt.sub}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{opt.sub}</p>
               </div>
               <span className="text-sm flex-shrink-0" style={{ color: `${opt.color}50` }}>›</span>
             </motion.button>
@@ -409,7 +409,7 @@ function SunnahStatusModal({ sunnah, onChoose, onClose }) {
 
         <div className="px-4 pb-5">
           <button onClick={onClose} className="w-full py-2.5 rounded-xl text-sm transition"
-            style={{ color: '#3A4A60', border: '1px solid rgba(255,255,255,0.05)' }}>
+            style={{ color: 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.05)' }}>
             Cancel
           </button>
         </div>
@@ -464,7 +464,7 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
         </span>
 
         {/* Rakah badge */}
-        <span className="block text-xs mb-1.5" style={{ color: '#3A4A60' }}>
+        <span className="block text-xs mb-1.5" style={{ color: 'var(--text-muted)' }}>
           {isJumuah
             ? (sunnah.variant === 'masjid' ? '4 rak'
              : sunnah.variant === 'home'   ? '2 rak'
@@ -477,7 +477,7 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
           <div className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
             style={{ background: status !== 'pending' ? `${s.accent}20` : 'rgba(58,74,96,0.15)', border: `1.5px solid ${s.accent}` }}>
             {status === 'done'    && <Check  size={11} style={{ color: '#A78BFA' }} />}
-            {status === 'skipped' && <Minus  size={11} style={{ color: '#3A4A60' }} />}
+            {status === 'skipped' && <Minus  size={11} style={{ color: 'var(--text-muted)' }} />}
           </div>
         </div>
 
@@ -517,13 +517,13 @@ export function JumuahVariantModal({ open, onChoose, onClose }) {
       <motion.div
         initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
         className="rounded-2xl p-6 w-full max-w-xs mx-4 mb-4 sm:mb-0"
-        style={{ background: '#0F1620', border: '1px solid rgba(139,92,246,0.3)' }}
+        style={{ background: 'var(--bg-card)', border: '1px solid rgba(139,92,246,0.3)' }}
         onClick={(e) => e.stopPropagation()}>
-        <p className="font-amiri text-lg mb-1 text-center" style={{ color: '#C9A84C' }}>سنة الجمعة</p>
-        <h3 className="text-sm font-semibold text-center mb-1" style={{ color: '#EDE8D8' }}>
+        <p className="font-amiri text-lg mb-1 text-center" style={{ color: 'var(--gold)' }}>سنة الجمعة</p>
+        <h3 className="text-sm font-semibold text-center mb-1" style={{ color: 'var(--text-primary)' }}>
           Where did you pray Jumu'ah?
         </h3>
-        <p className="text-xs text-center mb-5" style={{ color: '#7A8FA8' }}>
+        <p className="text-xs text-center mb-5" style={{ color: 'var(--text-secondary)' }}>
           This determines how many sunnah rak'ah to log.
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -532,17 +532,17 @@ export function JumuahVariantModal({ open, onChoose, onClose }) {
             style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.3)' }}>
             <span className="text-2xl">🕌</span>
             <span className="text-sm font-semibold" style={{ color: '#A78BFA' }}>Masjid</span>
-            <span className="text-xs" style={{ color: '#7A8FA8' }}>4 rak'ah</span>
+            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>4 rak'ah</span>
           </button>
           <button onClick={() => onChoose('home')}
             className="rounded-xl py-4 flex flex-col items-center gap-2 transition"
             style={{ background: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.2)' }}>
             <span className="text-2xl">🏠</span>
             <span className="text-sm font-semibold" style={{ color: '#2DD4BF' }}>Home</span>
-            <span className="text-xs" style={{ color: '#7A8FA8' }}>2 rak'ah</span>
+            <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>2 rak'ah</span>
           </button>
         </div>
-        <button onClick={onClose} className="w-full mt-4 text-xs py-2" style={{ color: '#3A4A60' }}>
+        <button onClick={onClose} className="w-full mt-4 text-xs py-2" style={{ color: 'var(--text-muted)' }}>
           Cancel
         </button>
       </motion.div>
@@ -556,8 +556,8 @@ export function SunnahPill({ name, status, variant }) {
   const meta = SUNNAH_META[name];
   const colors = {
     done:    { bg: 'rgba(139,92,246,0.12)', color: '#A78BFA' },
-    skipped: { bg: 'rgba(58,74,96,0.2)',    color: '#3A4A60' },
-    pending: { bg: 'rgba(58,74,96,0.12)',   color: '#4A5A70' },
+    skipped: { bg: 'rgba(58,74,96,0.2)',    color: 'var(--text-muted)' },
+    pending: { bg: 'rgba(58,74,96,0.12)',   color: 'var(--text-muted)' },
   };
   const c = colors[status] || colors.pending;
   const rakahs = getSunnahRakahs(name, variant);
@@ -575,7 +575,7 @@ export function PrayerPill({ name, status }) {
   const colors = {
     done:    { bg: 'rgba(34,197,94,0.12)',  color: '#22C55E' },
     missed:  { bg: 'rgba(239,68,68,0.12)', color: '#EF4444' },
-    pending: { bg: 'rgba(58,74,96,0.25)',  color: '#7A8FA8' },
+    pending: { bg: 'rgba(58,74,96,0.25)',  color: 'var(--text-secondary)' },
     qada:    { bg: 'rgba(245,158,11,0.12)',color: '#F59E0B' },
   };
   const c = colors[status] || colors.pending;

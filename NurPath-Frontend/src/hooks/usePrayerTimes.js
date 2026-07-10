@@ -73,7 +73,11 @@ export function usePrayerTimes() {
         const todayDateStr = today.toLocaleDateString('en-GB').split('/').join('-');
 
         const res = await fetch(
-          `https://api.aladhan.com/v1/timings/${todayDateStr}?latitude=${coords.lat}&longitude=${coords.lng}&method=17`
+          (() => {
+            // Use same calc method the user set on the Prayers page
+            const savedMethod = (typeof window !== 'undefined' && parseInt(localStorage.getItem('nurpath_calc_method'))) || 17;
+            return `https://api.aladhan.com/v1/timings/${todayDateStr}?latitude=${coords.lat}&longitude=${coords.lng}&method=${savedMethod}`;
+          })()
         );
 
         const data = await res.json();

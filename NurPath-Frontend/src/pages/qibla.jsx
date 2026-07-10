@@ -305,11 +305,11 @@ export default function QiblaPage() {
     <AppLayout>
       {/* Header */}
       <div className="mb-8">
-        <p className="font-amiri text-sm mb-1" style={{ color: '#7A6130', direction: 'rtl' }}>
+        <p className="font-amiri text-sm mb-1" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>
           اتِّجَاهُ الْقِبْلَةِ
         </p>
-        <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>Qibla Finder</h1>
-        <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>
+        <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>Qibla Finder</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
           Hold your device flat and face the direction shown by the gold needle.
         </p>
       </div>
@@ -327,7 +327,7 @@ export default function QiblaPage() {
         {!locLoading && (
           <button onClick={requestLocation}
             className="p-1.5 rounded-lg hover:bg-white/10 transition"
-            style={{ color: '#3A4A60' }} title="Retry location">
+            style={{ color: 'var(--text-muted)' }} title="Retry location">
             <RefreshCw size={13} />
           </button>
         )}
@@ -345,7 +345,7 @@ export default function QiblaPage() {
         {needsPermissionTap && (
           <div className="mb-6 w-full rounded-2xl p-4 text-center"
             style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
-            <p className="text-sm mb-3" style={{ color: '#C9A84C' }}>
+            <p className="text-sm mb-3" style={{ color: 'var(--gold)' }}>
               🧭 Tap below to enable the compass on your device.
             </p>
             <button onClick={handlePermissionTap}
@@ -353,7 +353,7 @@ export default function QiblaPage() {
               style={{
                 background: 'rgba(201,168,76,0.15)',
                 border: '1px solid rgba(201,168,76,0.35)',
-                color: '#C9A84C',
+                color: 'var(--gold)',
               }}>
               Enable Compass
             </button>
@@ -368,7 +368,7 @@ export default function QiblaPage() {
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 1.4, ease: 'linear' }}>
-                <RefreshCw size={28} style={{ color: '#C9A84C' }} />
+                <RefreshCw size={28} style={{ color: 'var(--gold)' }} />
               </motion.div>
             </div>
           )
@@ -400,26 +400,26 @@ export default function QiblaPage() {
           <div className="mt-5 grid grid-cols-2 gap-4 w-full max-w-xs">
             <div className="rounded-xl p-3 text-center"
               style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }}>
-              <p className="text-xs mb-1" style={{ color: '#7A8FA8' }}>Qibla bearing</p>
-              <p className="text-xl font-bold" style={{ color: '#C9A84C' }}>
+              <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Qibla bearing</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--gold)' }}>
                 {Math.round(qiblaBearing)}°
               </p>
-              <p className="text-xs mt-0.5" style={{ color: '#3A4A60' }}>from North</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>from North</p>
             </div>
             <div className="rounded-xl p-3 text-center"
               style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.12)' }}>
-              <p className="text-xs mb-1" style={{ color: '#7A8FA8' }}>Distance</p>
-              <p className="text-xl font-bold" style={{ color: '#C9A84C' }}>
+              <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Distance</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--gold)' }}>
                 {formatDistance(distance)}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: '#3A4A60' }}>to Kaaba</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>to Kaaba</p>
             </div>
           </div>
         )}
 
         {/* Compass heading display */}
         {heading !== null && (
-          <p className="mt-4 text-xs" style={{ color: '#3A4A60' }}>
+          <p className="mt-4 text-xs" style={{ color: 'var(--text-muted)' }}>
             <Navigation size={11} className="inline mr-1" />
             Device heading: {Math.round(heading)}° from North
           </p>
@@ -435,7 +435,7 @@ export default function QiblaPage() {
             <p className="text-sm font-medium mb-1" style={{ color: '#F97316' }}>
               Compass unavailable
             </p>
-            <p className="text-xs leading-relaxed" style={{ color: '#7A8FA8' }}>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               {compassError} The needle above shows the correct Qibla direction from North — use it with a physical compass to find the direction.
             </p>
           </div>
@@ -445,7 +445,7 @@ export default function QiblaPage() {
       {/* How to use */}
       <div className="rounded-2xl p-5 mb-4"
         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-        <p className="text-sm font-semibold mb-3" style={{ color: '#EDE8D8' }}>How to use</p>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>How to use</p>
         <div className="space-y-2.5">
           {[
             ['📱', 'Hold your phone flat (screen facing up).'],
@@ -455,7 +455,7 @@ export default function QiblaPage() {
           ].map(([icon, text]) => (
             <div key={text} className="flex items-start gap-3">
               <span className="text-base flex-shrink-0">{icon}</span>
-              <p className="text-sm" style={{ color: '#7A8FA8' }}>{text}</p>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{text}</p>
             </div>
           ))}
         </div>
@@ -463,10 +463,10 @@ export default function QiblaPage() {
 
       {/* Footer note */}
       <div className="mt-4 text-center">
-        <p className="font-amiri text-base mb-1" style={{ color: '#7A6130' }}>
+        <p className="font-amiri text-base mb-1" style={{ color: 'var(--gold-dim)' }}>
           وَمِنْ حَيْثُ خَرَجْتَ فَوَلِّ وَجْهَكَ شَطْرَ الْمَسْجِدِ الْحَرَامِ
         </p>
-        <p className="text-xs" style={{ color: '#3A4A60' }}>Al-Baqarah 2:150</p>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Al-Baqarah 2:150</p>
       </div>
     </AppLayout>
   );

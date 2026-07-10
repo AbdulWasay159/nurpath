@@ -25,21 +25,21 @@ export default function AppLayout({ children, requireAdmin = false }) {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#080D13' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-deep)' }}>
         <div className="text-center space-y-4">
           <div className="text-5xl animate-pulse" style={{ filter: 'drop-shadow(0 0 20px rgba(201,168,76,0.5))' }}>☽</div>
-          <div className="text-sm" style={{ color: '#3A4A60' }}>Loading NurPath...</div>
+          <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading NurPath...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ background: "var(--bg-deep)", color: "var(--text-primary)" }}>
       <Navbar notifications={unreadCount} />
       {/* Content area - offset for desktop sidebar */}
       <main className="lg:ml-64 pt-16 lg:pt-0 min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8" style={{ color: "var(--text-primary)" }}>
           {children}
         </div>
       </main>

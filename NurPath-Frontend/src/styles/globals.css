@@ -1,98 +1,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+@import './theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Quranic Arabic font utilities ────────────────────────────────── */
-.font-noto-arabic {
-  font-family: 'Noto Naskh Arabic', 'Amiri', serif;
-}
-.font-scheherazade {
-  font-family: 'Scheherazade New', 'Amiri', serif;
-}
-.font-amiri-quran {
-  font-family: 'Amiri', serif;
-}
-.font-indopak {
-  font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
-}
-
-:root {
-  --gold: #C9A84C;
-  --gold-light: #E8C97A;
-  --gold-dim: #7A6130;
-  --teal: #2DD4BF;
-  --bg-deep: #080D13;
-  --bg-card: #0F1620;
-  --bg-surface: #162030;
-  --text-primary: #EDE8D8;
-  --text-secondary: #7A8FA8;
-  --text-muted: #3A4A60;
-  --border: rgba(201,168,76,0.12);
-  --border-hover: rgba(201,168,76,0.35);
-}
-
+/* ── Base ───────────────────────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background-color: #080D13;
-  color: #EDE8D8;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Islamic geometric background */
+/* ── Islamic geometric background ──────────────────────────────── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(ellipse at 15% 15%, rgba(201,168,76,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 85%, rgba(45,212,191,0.05) 0%, transparent 55%),
+    var(--gradient-radial-gold),
+    var(--gradient-radial-teal),
     url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A84C' stroke-width='0.4' stroke-opacity='0.05'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40Z'/%3E%3Cpath d='M40 20 L60 40 L40 60 L20 40Z'/%3E%3Cpath d='M40 0 L40 80M0 40 L80 40'/%3E%3C/g%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
 }
 
-/* Scrollbar */
+/* ── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-track { background: var(--bg-card); }
 ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-/* Progress ring animation */
-@keyframes ringDraw {
-  from { stroke-dashoffset: 283; }
-}
-
-.ring-animated {
-  animation: ringDraw 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* Shimmer skeleton */
+/* ── Skeleton shimmer ───────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(90deg, #162030 25%, #1C2A40 50%, #162030 75%);
+  background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
 }
-
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
-/* Glass card */
+/* ── Progress ring ──────────────────────────────────────────────── */
+@keyframes ringDraw { from { stroke-dashoffset: 283; } }
+.ring-animated { animation: ringDraw 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* ── Glass card ─────────────────────────────────────────────────── */
 .glass-card {
-  background: rgba(15, 22, 32, 0.8);
+  background: color-mix(in srgb, var(--bg-card) 80%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(201,168,76,0.12);
+  border: 1px solid var(--border);
   border-radius: 18px;
 }
 
-/* Gold button */
+/* ── Buttons ────────────────────────────────────────────────────── */
 .btn-gold {
   background: linear-gradient(135deg, #C9A84C 0%, #A8782A 100%);
   color: #1A1000;
@@ -106,48 +73,85 @@ body::before {
   font-size: 15px;
   letter-spacing: 0.3px;
 }
-.btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-gold:hover  { opacity: 0.9; transform: translateY(-1px); }
 .btn-gold:active { transform: translateY(0); }
 .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-/* Input */
+/* ── Input ──────────────────────────────────────────────────────── */
 .input-field {
   width: 100%;
-  background: #111B28;
-  border: 1px solid rgba(201,168,76,0.12);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 13px 16px;
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
-  color: #EDE8D8;
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .input-field:focus {
-  border-color: #C9A84C;
+  border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
 }
-.input-field::placeholder { color: #3A4A60; }
+.input-field::placeholder { color: var(--text-muted); }
 
-/* Section label */
+/* ── Section label ──────────────────────────────────────────────── */
 .section-label {
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #3A4A60;
+  color: var(--text-muted);
   margin-bottom: 14px;
 }
 
-/* Badge */
-.badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
+/* ── Badges ─────────────────────────────────────────────────────── */
+.badge       { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.badge-gold  { background: rgba(201,168,76,0.15); color: var(--gold); }
+.badge-teal  { background: rgba(45,212,191,0.12); color: var(--teal); }
+.badge-green { background: rgba(34,197,94,0.10);  color: #22C55E; }
+.badge-red   { background: rgba(239,68,68,0.10);  color: #EF4444; }
+.badge-gray  { background: var(--border-subtle);  color: var(--text-secondary); }
+
+/* ── Theme-aware utility classes ────────────────────────────────── */
+/* Use these instead of hardcoded hex in JSX */
+.text-primary   { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted     { color: var(--text-muted) !important; }
+.text-gold      { color: var(--gold) !important; }
+.text-gold-dim  { color: var(--gold-dim) !important; }
+.bg-card        { background: var(--bg-card) !important; }
+.bg-surface     { background: var(--bg-surface) !important; }
+.bg-input       { background: var(--bg-input) !important; }
+.border-theme   { border-color: var(--border) !important; }
+
+/* ── Card base — theme-aware ────────────────────────────────────── */
+.card-base {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
-.badge-gold { background: rgba(201,168,76,0.15); color: #C9A84C; }
-.badge-teal { background: rgba(45,212,191,0.12); color: #2DD4BF; }
-.badge-green { background: rgba(34,197,94,0.1); color: #22C55E; }
-.badge-red { background: rgba(239,68,68,0.1); color: #EF4444; }
-.badge-gray { background: rgba(74,85,104,0.3); color: #7A8FA8; }
+
+/* ── Divider ────────────────────────────────────────────────────── */
+.divider { border-color: var(--border-subtle); }
+
+/* ── Search input (used in Quran, Names of Allah, etc) ─────────── */
+.search-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px 14px 46px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+}
+.search-input::placeholder { color: var(--text-muted); }

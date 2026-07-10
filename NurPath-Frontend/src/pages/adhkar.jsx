@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLayout from '../components/layout/AppLayout';
-import { getMorningAdhkar, getEveningAdhkar } from '../lib/adhkar';
-import { Sun, Moon, ChevronDown, ChevronUp, RotateCcw, CheckCircle2, Info } from 'lucide-react';
+import { getMorningAdhkar, getEveningAdhkar } from '../lib/adhkar-enhanced';
+import { Sun, Moon, ChevronDown, ChevronUp, RotateCcw, CheckCircle2, Info, BookOpen, ShieldCheck, Clock, Star } from 'lucide-react';
 
 // ── Storage helpers ──────────────────────────────────────────────────────────
 function storageKey(tab) {
@@ -28,7 +28,7 @@ function getDefaultTab() {
 // ── Single Dhikr Card ────────────────────────────────────────────────────────
 function DhikrCard({ dhikr, index, tab, done, onDone, onUndo }) {
   const [expanded, setExpanded] = useState(false);
-  const [showVirtue, setShowVirtue] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const countLabel =
     dhikr.count === 1 ? 'Once' :
@@ -63,22 +63,20 @@ function DhikrCard({ dhikr, index, tab, done, onDone, onUndo }) {
             style={{ background: accentBg, color: accentColor }}>
             {countLabel}
           </span>
-          <span className="text-xs" style={{ color: '#3A4A60' }}>{timingLabel}</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{timingLabel}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          {dhikr.virtue && (
-            <button onClick={() => setShowVirtue(!showVirtue)}
-              className="p-1.5 rounded-lg transition hover:bg-white/10"
-              style={{ color: showVirtue ? accentColor : '#3A4A60' }}
-              title="Hadith virtue">
-              <Info size={13} />
-            </button>
-          )}
+          <button onClick={() => setShowDetails(!showDetails)}
+            className="p-1.5 rounded-lg transition hover:bg-white/10"
+            style={{ color: showDetails ? accentColor : '#3A4A60' }}
+            title="Hadith Details & Authenticity">
+            <Info size={13} />
+          </button>
           {done
             ? (
               <button onClick={onUndo}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs transition hover:bg-white/10"
-                style={{ color: '#3A4A60' }}
+                style={{ color: 'var(--text-muted)' }}
                 title="Mark as not done">
                 <RotateCcw size={12} /> Undo
               </button>
@@ -124,10 +122,10 @@ function DhikrCard({ dhikr, index, tab, done, onDone, onUndo }) {
         className="w-full flex items-center justify-between px-5 py-2.5 text-sm text-left transition hover:bg-white/[0.02]"
         onClick={() => setExpanded(!expanded)}
         style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <span style={{ color: '#7A8FA8' }}>Transliteration &amp; Translation</span>
+        <span style={{ color: 'var(--text-secondary)' }}>Transliteration &amp; Translation</span>
         {expanded
-          ? <ChevronUp size={14} style={{ color: '#3A4A60' }} />
-          : <ChevronDown size={14} style={{ color: '#3A4A60' }} />}
+          ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} />
+          : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
       </button>
 
       <AnimatePresence>
@@ -143,7 +141,7 @@ function DhikrCard({ dhikr, index, tab, done, onDone, onUndo }) {
                 style={{ color: accentColor, fontFamily: 'serif' }}>
                 {dhikr.transliteration}
               </p>
-              <p className="text-sm leading-relaxed" style={{ color: '#7A8FA8' }}>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 {dhikr.translation}
               </p>
             </div>
@@ -151,20 +149,62 @@ function DhikrCard({ dhikr, index, tab, done, onDone, onUndo }) {
         )}
       </AnimatePresence>
 
-      {/* ── Virtue / Hadith ── */}
+      {/* ── Enhanced Details (Reference, Authenticity, Occasion, Benefits) ── */}
       <AnimatePresence>
-        {showVirtue && dhikr.virtue && (
+        {showDetails && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22 }}
             className="overflow-hidden">
-            <div className="px-5 pb-4 pt-1"
-              style={{ borderTop: '1px solid rgba(201,168,76,0.08)' }}>
-              <p className="text-xs leading-relaxed italic" style={{ color: '#7A6130' }}>
-                📖 {dhikr.virtue}
-              </p>
+            <div className="px-5 pb-4 pt-3 space-y-3"
+              style={{ borderTop: '1px solid rgba(201,168,76,0.08)', background: 'rgba(255,255,255,0.01)' }}>
+              
+              {dhikr.virtue && (
+                <div className="flex items-start gap-2">
+                  <Star size={12} className="mt-1 flex-shrink-0" style={{ color: accentColor }} />
+                  <p className="text-xs leading-relaxed italic" style={{ color: 'var(--gold-dim)' }}>
+                    <strong>Virtue:</strong> {dhikr.virtue}
+                  </p>
+                </div>
+              )}
+
+              {dhikr.reference && (
+                <div className="flex items-start gap-2">
+                  <BookOpen size={12} className="mt-1 flex-shrink-0" style={{ color: accentColor }} />
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    <strong>Reference:</strong> {dhikr.reference}
+                  </p>
+                </div>
+              )}
+
+              {dhikr.authenticity && (
+                <div className="flex items-start gap-2">
+                  <ShieldCheck size={12} className="mt-1 flex-shrink-0" style={{ color: accentColor }} />
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    <strong>Authenticity:</strong> <span className="font-bold" style={{ color: dhikr.authenticity.includes('Sahih') ? '#22C55E' : '#C9A84C' }}>{dhikr.authenticity}</span>
+                  </p>
+                </div>
+              )}
+
+              {dhikr.occasion && (
+                <div className="flex items-start gap-2">
+                  <Clock size={12} className="mt-1 flex-shrink-0" style={{ color: accentColor }} />
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    <strong>Occasion:</strong> {dhikr.occasion}
+                  </p>
+                </div>
+              )}
+
+              {dhikr.benefits && (
+                <div className="flex items-start gap-2">
+                  <Star size={12} className="mt-1 flex-shrink-0" style={{ color: accentColor }} />
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    <strong>Benefits:</strong> {dhikr.benefits}
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -223,13 +263,13 @@ export default function AdhkarPage() {
     <AppLayout>
       {/* ── Header ── */}
       <div className="mb-8">
-        <p className="font-amiri text-sm mb-1" style={{ color: '#7A6130', direction: 'rtl' }}>
+        <p className="font-amiri text-sm mb-1" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>
           {tab === 'morning' ? 'أَذْكَارُ الصَّبَاحِ' : 'أَذْكَارُ الْمَسَاءِ'}
         </p>
-        <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>
+        <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>
           {tab === 'morning' ? 'Morning Adhkar' : 'Evening Adhkar'}
         </h1>
-        <p className="text-sm mt-1" style={{ color: '#7A8FA8' }}>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
           {tab === 'morning'
             ? 'Recite after Fajr prayer until before Dhuhr.'
             : 'Recite after Asr prayer until before Maghrib.'}
@@ -239,7 +279,7 @@ export default function AdhkarPage() {
       {/* ── Tab switcher ── */}
       <div className="flex gap-3 mb-6">
         {[
-          { key: 'morning', label: 'Morning', Icon: Sun, color: '#C9A84C', bg: 'rgba(201,168,76,0.15)', border: 'rgba(201,168,76,0.35)' },
+          { key: 'morning', label: 'Morning', Icon: Sun, color: 'var(--gold)', bg: 'rgba(201,168,76,0.15)', border: 'rgba(201,168,76,0.35)' },
           { key: 'evening', label: 'Evening', Icon: Moon, color: '#A78BFA', bg: 'rgba(139,92,246,0.15)', border: 'rgba(139,92,246,0.35)' },
         ].map(({ key, label, Icon, color, bg, border }) => (
           <button key={key} onClick={() => switchTab(key)}
@@ -269,7 +309,7 @@ export default function AdhkarPage() {
           </span>
           <button onClick={handleResetAll}
             className="flex items-center gap-1 text-xs px-3 py-1 rounded-lg transition hover:bg-white/10"
-            style={{ color: '#3A4A60' }}>
+            style={{ color: 'var(--text-muted)' }}>
             <RotateCcw size={11} /> Reset all
           </button>
         </div>
@@ -286,10 +326,10 @@ export default function AdhkarPage() {
       {/* ── Instruction note ── */}
       <div className="rounded-xl px-4 py-3 mb-5 flex items-start gap-3"
         style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.08)' }}>
-        <Info size={14} style={{ color: '#7A6130', flexShrink: 0, marginTop: 2 }} />
-        <p className="text-xs leading-relaxed" style={{ color: '#7A6130' }}>
-          Read the dhikr on your fingers, then tap <strong style={{ color: '#C9A84C' }}>Done</strong> to mark it complete.
-          Tap <strong style={{ color: '#C9A84C' }}>ℹ</strong> on any card for the Hadith virtue.
+        <Info size={14} style={{ color: 'var(--gold-dim)', flexShrink: 0, marginTop: 2 }} />
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--gold-dim)' }}>
+          Read the dhikr on your fingers, then tap <strong style={{ color: 'var(--gold)' }}>Done</strong> to mark it complete.
+          Tap <strong style={{ color: 'var(--gold)' }}>ℹ</strong> on any card for authentic hadith details and references.
           Progress resets automatically the next day.
         </p>
       </div>
@@ -312,11 +352,12 @@ export default function AdhkarPage() {
       {/* ── Footer ── */}
       <div className="mt-8 pt-6 text-center"
         style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <p className="font-amiri text-lg mb-1" style={{ color: '#7A6130' }}>
+        <p className="font-amiri text-lg mb-1" style={{ color: 'var(--gold-dim)' }}>
           وَذَكَرَ اللَّهَ كَثِيرًا
         </p>
-        <p className="text-xs" style={{ color: '#3A4A60' }}>
-          Source: Subah Shaam ke Azkaar — all adhkar are from authentic hadith (Ṣaḥīḥ Bukhārī, Muslim, Abu Dāwūd, Tirmiẕī & others)
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          Source: Authentic hadith collections (Ṣaḥīḥ Bukhārī, Muslim, Abu Dāwūd, Tirmiẕī & others).
+          Every adhkar is verified according to the Ahle Hadees methodology.
         </p>
       </div>
     </AppLayout>

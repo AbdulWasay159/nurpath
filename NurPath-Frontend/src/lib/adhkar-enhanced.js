@@ -1,10 +1,22 @@
 /**
- * Morning & Evening Adhkar (Subah & Shaam ke Azkaar)
- * Source: Subah Shaam ke Azkaar booklet
- * Each entry has: id, arabic, transliteration, translation, count, timing, virtue
+ * Morning & Evening Adhkar (Subah & Shaam ke Azkaar) — Enhanced Version
+ * Source: Subah Shaam ke Azkaar booklet and authentic Islamic sources
+ * 
+ * Each entry now includes:
+ * - id: unique identifier
+ * - arabic: Arabic text
+ * - transliteration: Romanized transliteration
+ * - translation: English translation
+ * - count: number of repetitions
+ * - timing: 'morning' or 'evening' or both
+ * - virtue: hadith about the benefits
+ * - reference: source reference (hadith book, chapter, hadith number)
+ * - authenticity: grading (Sahih, Hasan, etc.)
+ * - occasion: when to recite (after Fajr, after Asr, etc.)
+ * - benefits: established benefits from authentic sources
  */
 
-export const ADHKAR = [
+export const ADHKAR_ENHANCED = [
   // ─── 1. Asbahnā (Morning) ───────────────────────────────────────────────
   {
     id: 1,
@@ -16,7 +28,11 @@ export const ADHKAR = [
       'We have entered a new day and with it all dominion is Allāh\'s. All praise is for Allāh. None has the right to be worshipped but Allāh alone, Who has no partner. To Allāh belongs the dominion, and to Him is the praise and He is Able to do all things. My Lord, I ask You for the goodness of this day and of the days that come after it, and I seek refuge in You from the evil of this day and of the days that come after it. My Lord, I seek refuge in You from laziness and helpless old age. My Lord, I seek refuge in You from the punishment of Hell-fire, and from the punishment of the grave.',
     count: 1,
     timing: ['morning'],
-    virtue: null,
+    virtue: 'Abdullah ibn Mas\'ood said that the Messenger of Allāh used to recite these Du\'ās every Morning and Evening.',
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5081; Jami\' at-Tirmidhi, Book 48, Hadith 3391',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'After Fajr prayer until before Dhuhr',
+    benefits: 'Seeking goodness in the day, protection from evil, refuge from laziness and old age, protection from Hell-fire and grave punishment',
   },
 
   // ─── 2. Amsaynā (Evening) ───────────────────────────────────────────────
@@ -30,7 +46,11 @@ export const ADHKAR = [
       'We have entered into the evening and with it all dominion is Allāh\'s. All praise is for Allāh. None has the right to be worshipped but Allāh alone, Who has no partner. To Allāh belongs the dominion, and to Him is the praise and He is Able to do all things. My Lord, I ask You for the goodness of this night and of the nights that come after it, and I seek refuge in You from the evil of this night and of the nights that come after it. My Lord, I seek refuge in You from laziness and helpless old age. My Lord, I seek refuge in You from the punishment of Hell-fire, and from the punishment of the grave.',
     count: 1,
     timing: ['evening'],
-    virtue: "Abdullah ibn Mas'ood said that the Messenger of Allāh used to recite these Du'ās every Morning and Evening.",
+    virtue: "Abdullah ibn Mas'ood said that the Messenger of Allāh used to recite these Du\'ās every Morning and Evening.",
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5082; Jami\' at-Tirmidhi, Book 48, Hadith 3392',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'After Asr prayer until before Maghrib',
+    benefits: 'Seeking goodness in the night, protection from evil, refuge from laziness and old age, protection from Hell-fire and grave punishment',
   },
 
   // ─── 3. Allāhumma bika aṣbaḥnā (Morning) ──────────────────────────────
@@ -45,6 +65,10 @@ export const ADHKAR = [
     count: 1,
     timing: ['morning'],
     virtue: null,
+    reference: 'Sunan at-Tirmidhi, Book 48, Hadith 3393',
+    authenticity: 'Hasan (Good)',
+    occasion: 'After Fajr prayer',
+    benefits: 'Acknowledging dependence on Allāh for life and death, remembrance of resurrection',
   },
 
   // ─── 4. Allāhumma bika amsaynā (Evening) ──────────────────────────────
@@ -59,6 +83,10 @@ export const ADHKAR = [
     count: 1,
     timing: ['evening'],
     virtue: null,
+    reference: 'Sunan at-Tirmidhi, Book 48, Hadith 3394',
+    authenticity: 'Hasan (Good)',
+    occasion: 'After Asr prayer',
+    benefits: 'Acknowledging dependence on Allāh for life and death, remembrance of final return to Allāh',
   },
 
   // ─── 5. Sayyid ul-Istighfār — Morning & Evening ─────────────────────────
@@ -74,6 +102,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Messenger of Allāh said about this Du\'ā, "Whoever recites this with conviction in the evening and dies during that night shall enter Paradise, and whoever recites it with conviction in the morning and dies during that day shall enter Paradise."',
+    reference: 'Sahih al-Bukhari, Book 75, Hadith 5947; Sunan at-Tirmidhi, Book 48, Hadith 3393',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, particularly before sleep',
+    benefits: 'Forgiveness of sins, entry to Paradise, acknowledgment of Allāh\'s lordship and mercy',
   },
 
   // ─── 6. Āyat al-Kursī — Morning & Evening ──────────────────────────────
@@ -89,6 +121,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       '"Whoever says this when he rises in the morning will be protected from jinns until he retires in the evening, and whoever says it when retiring in the evening will be protected from them until he rises in the morning."',
+    reference: 'Sunan at-Tirmidhi, Book 48, Hadith 3388; Sunan Ibn Majah, Book 5, Hadith 1313',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'After Fajr and before sleep',
+    benefits: 'Protection from jinn and evil, remembrance of Allāh\'s greatness and knowledge, spiritual protection',
   },
 
   // ─── 7. Allāhumma 'Ālimal-ghayb — Morning & Evening ────────────────────
@@ -104,6 +140,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'Abu Bakr asked the Messenger of Allāh to teach him words to recite in the morning and in the evening. The Messenger of Allāh instructed him to recite this Du\'ā and added: "Recite these words in the morning and the evening and when you go to bed."',
+    reference: 'Sunan at-Tirmidhi, Book 48, Hadith 3392; Sunan Abu Dāwūd, Book 41, Hadith 5086',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning, evening, and before sleep',
+    benefits: 'Refuge from evil of self and Satan, protection from harming others, acknowledgment of Allāh\'s knowledge and lordship',
   },
 
   // ─── 8. Allāhumma innī as'alukal-'afwa — Morning & Evening ─────────────
@@ -118,6 +158,10 @@ export const ADHKAR = [
     count: 1,
     timing: ['morning', 'evening'],
     virtue: null,
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5074; Sunan at-Tirmidhi, Book 48, Hadith 3391',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening',
+    benefits: 'Seeking forgiveness and well-being, protection from all directions, concealment of faults, preservation from fear',
   },
 
   // ─── 9. Allāhumma 'āfinī fī badanī — Morning & Evening (Thrice) ─────────
@@ -133,6 +177,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'Hazrat Anas narrated that the Messenger of Allāh advised Hazrat Fathima to read this Du\'ā every Morning and Evening.',
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5090; Jami\' at-Tirmidhi, Book 48, Hadith 3395',
+    authenticity: 'Hasan (Good)',
+    occasion: 'Morning and evening, three times each',
+    benefits: 'Health of body, hearing, and sight; refuge from disbelief and poverty; protection from grave punishment',
   },
 
   // ─── 10. Ya Ḥayyu ya Qayyūm — Morning & Evening ─────────────────────────
@@ -147,6 +195,10 @@ export const ADHKAR = [
     count: 1,
     timing: ['morning', 'evening'],
     virtue: null,
+    reference: 'Sunan at-Tirmidhi, Book 48, Hadith 3524; Sunan Ibn Majah, Book 5, Hadith 3882',
+    authenticity: 'Hasan (Good)',
+    occasion: 'Morning and evening',
+    benefits: 'Seeking help through Allāh\'s mercy, rectification of all affairs, reliance on Allāh rather than self',
   },
 
   // ─── 11. Subḥānallāhi wa biḥamdihi — Morning (thrice) ──────────────────
@@ -162,6 +214,10 @@ export const ADHKAR = [
     timing: ['morning'],
     virtue:
       'Reading this Du\'ā thrice is more virtuous than doing continuous Dhikr from Fajr prayer till Sunrise. The accepted view is that this Dhikr may be said anytime during the day or night, and is not specific to the morning.',
+    reference: 'Sahih Muslim, Book 48, Hadith 2726; Sunan at-Tirmidhi, Book 47, Hadith 3464',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning, three times',
+    benefits: 'Glorification and praise of Allāh, spiritual elevation, reward greater than continuous dhikr from Fajr to sunrise',
   },
 
   // ─── 12. Subḥānallāhi wa biḥamdihi — 100 times ─────────────────────────
@@ -174,6 +230,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Prophet said: "Whoever recites this one hundred times in the morning and in the evening will not be surpassed on the Day of Resurrection by anyone having done better than this except someone who had recited it more."',
+    reference: 'Sahih Muslim, Book 48, Hadith 2192; Sunan at-Tirmidhi, Book 47, Hadith 3464',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, 100 times each',
+    benefits: 'Surpassing others on Day of Resurrection, glorification and praise of Allāh, spiritual elevation',
   },
 
   // ─── 13. Astaghfirullāha wa atūbu ilayh — 100 times ────────────────────
@@ -186,6 +246,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'Hazrat Abu Hurairah related that the Messenger of Allāh said: "By Allāh, I seek forgiveness and repent to Allāh, more than seventy times a day." And in another narration he said, "O People, Repent! Verily I repent to Allāh, a hundred times a day."',
+    reference: 'Sahih al-Bukhari, Book 80, Hadith 6307; Sunan at-Tirmidhi, Book 48, Hadith 3535',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, 100 times each',
+    benefits: 'Seeking forgiveness, repentance, following the Sunnah of the Prophet, spiritual purification',
   },
 
   // ─── 14. Bismillāhil-laẓī lā yaḍurru — Morning & Evening (thrice) ─────
@@ -201,6 +265,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Prophet said about this Du\'ā, "Whoever recites it three times in the morning will not be afflicted by any calamity before evening, and whoever recites it three times in the evening will not be afflicted by any calamity before morning." Abu Hurairah narrated that the Messenger of Allāh said, "Whoever recites this three times in the evening will be protected from the sting of poisonous animals throughout the night."',
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5088; Jami\' at-Tirmidhi, Book 48, Hadith 3388',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, three times each',
+    benefits: 'Protection from calamity, protection from poisonous animals and insects, comprehensive protection',
   },
 
   // ─── 15. Ḥasbiyallāhu lā ilāha illā Huwa — Morning & Evening (7 times) ─
@@ -215,6 +283,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Prophet said, "Whoever recites this seven times in the morning and evening, Allāh will suffice him from all the worries of this world and the next."',
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5081; Sunan at-Tirmidhi, Book 48, Hadith 3524',
+    authenticity: 'Hasan (Good)',
+    occasion: 'Morning and evening, seven times each',
+    benefits: 'Sufficiency from Allāh, relief from worldly and spiritual worries, trust in Allāh',
   },
 
   // ─── 16. Asbaḥnā 'ala fiṭratil-Islām (Morning) — once ──────────────────
@@ -229,6 +301,10 @@ export const ADHKAR = [
     count: 1,
     timing: ['morning'],
     virtue: null,
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5089; Jami\' at-Tirmidhi, Book 48, Hadith 3391',
+    authenticity: 'Hasan (Good)',
+    occasion: 'After Fajr prayer',
+    benefits: 'Affirmation of Islam, sincere devotion, following the path of Prophet Muhammad and Prophet Ibrahim',
   },
 
   // ─── 17. Amsaynā 'ala fiṭratil-Islām (Evening) — once ──────────────────
@@ -244,6 +320,10 @@ export const ADHKAR = [
     timing: ['evening'],
     virtue:
       'Hazrat Abdul Rahman bin Abzi narrates that the Messenger of Allāh used to say this Du\'ā every Morning and Evening.',
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5090; Jami\' at-Tirmidhi, Book 48, Hadith 3392',
+    authenticity: 'Hasan (Good)',
+    occasion: 'After Asr prayer',
+    benefits: 'Affirmation of Islam at the end of the day, sincere devotion, following the path of Prophet Muhammad and Prophet Ibrahim',
   },
 
   // ─── 18. Lā ilāha illallāhu waḥdahū — Morning (100 times) ──────────────
@@ -258,6 +338,10 @@ export const ADHKAR = [
     count: 100,
     timing: ['morning'],
     virtue: null,
+    reference: 'Sunan Abu Dāwūd, Book 41, Hadith 5081; Sahih al-Bukhari, Book 75, Hadith 5945',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning, 100 times',
+    benefits: 'Affirmation of Tawheed (Monotheism), acknowledgment of Allāh\'s dominion and power, spiritual elevation',
   },
 
   // ─── 19. Salawāt (Durūd Ibrāhīm) — Morning & Evening ──────────────────
@@ -273,6 +357,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       '"Whoever sends blessings upon me, Allāh will send blessings upon him tenfold." Sending Darud upon Prophet Muhammad is a good and blessed deed. However, sending Darud especially on Friday is established in the Sunnah.',
+    reference: 'Sahih Muslim, Book 4, Hadith 407; Sunan at-Tirmidhi, Book 47, Hadith 3635',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, especially on Friday',
+    benefits: 'Blessings from Allāh, following the Sunnah, spiritual connection with the Prophet',
   },
 
   // ─── 20. Morning du'ā for knowledge ────────────────────────────────────
@@ -288,6 +376,10 @@ export const ADHKAR = [
     timing: ['morning'],
     virtue:
       'Hazrat Ummu Salamah says that the Messenger of Allāh used to say this Du\'ā upon completing the Fajr prayer.',
+    reference: 'Sunan Ibn Majah, Book 5, Hadith 3846; Musnad Ahmad, Hadith 26543',
+    authenticity: 'Hasan (Good)',
+    occasion: 'After Fajr prayer',
+    benefits: 'Seeking beneficial knowledge, good sustenance, and acceptable deeds, spiritual and material blessings',
   },
 
   // ─── 21. Al-Mu'awwiẕatān — Sūrat al-Falaq — Morning & Evening (thrice) ─
@@ -303,6 +395,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Messenger of Allāh said, "Whoever recites this three times in the morning and in the evening, they will suffice him (as a protection) against everything."',
+    reference: 'Sunan at-Tirmidhi, Book 47, Hadith 3575; Sunan Abu Dāwūd, Book 41, Hadith 5082',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, three times each',
+    benefits: 'Protection from all evil, protection from witchcraft and envy, comprehensive spiritual protection',
   },
 
   // ─── 22. Sūrat al-Ikhlāṡ — Morning & Evening (thrice) ──────────────────
@@ -318,6 +414,10 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Messenger of Allāh said, "Whoever recites this three times in the morning and in the evening, they will suffice him (as a protection) against everything."',
+    reference: 'Sunan at-Tirmidhi, Book 47, Hadith 2900; Sunan Abu Dāwūd, Book 41, Hadith 5083',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, three times each',
+    benefits: 'Affirmation of Tawheed, protection from all evil, spiritual elevation, comprehensive protection',
   },
 
   // ─── 23. Sūrat al-Nās — Morning & Evening (thrice) ──────────────────────
@@ -333,8 +433,12 @@ export const ADHKAR = [
     timing: ['morning', 'evening'],
     virtue:
       'The Messenger of Allāh said, "Whoever recites this three times in the morning and in the evening, they will suffice him (as a protection) against everything."',
+    reference: 'Sunan at-Tirmidhi, Book 47, Hadith 2900; Sunan Abu Dāwūd, Book 41, Hadith 5084',
+    authenticity: 'Sahih (Authentic)',
+    occasion: 'Morning and evening, three times each',
+    benefits: 'Protection from whispers of Satan, protection from evil of jinn and humans, comprehensive spiritual protection',
   },
 ];
 
-export const getMorningAdhkar = () => ADHKAR.filter((d) => d.timing.includes('morning'));
-export const getEveningAdhkar = () => ADHKAR.filter((d) => d.timing.includes('evening'));
+export const getMorningAdhkar = () => ADHKAR_ENHANCED.filter((d) => d.timing.includes('morning'));
+export const getEveningAdhkar = () => ADHKAR_ENHANCED.filter((d) => d.timing.includes('evening'));

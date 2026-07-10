@@ -32,49 +32,49 @@ export default function AzkarModal({ open, onClose, prayerName }) {
           exit={{ scale: 0.92, opacity: 0 }}
           transition={{ type: 'spring', duration: 0.35 }}
           className="w-full rounded-3xl overflow-hidden"
-          style={{ maxWidth: 560, background: '#0F1620', border: '1px solid rgba(201,168,76,0.2)', boxShadow: '0 0 60px rgba(0,0,0,0.6)' }}
+          style={{ maxWidth: 560, background: 'var(--bg-card)', border: '1px solid rgba(201,168,76,0.2)', boxShadow: '0 0 60px rgba(0,0,0,0.6)' }}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-7 py-5"
             style={{ borderBottom: '1px solid rgba(201,168,76,0.1)', background: 'rgba(201,168,76,0.04)' }}>
             <div className="flex items-center gap-2.5">
-              <BookOpen size={17} style={{ color: '#C9A84C' }} />
+              <BookOpen size={17} style={{ color: 'var(--gold)' }} />
               <div>
-                <h3 className="font-amiri text-lg leading-tight" style={{ color: '#C9A84C' }}>
+                <h3 className="font-amiri text-lg leading-tight" style={{ color: 'var(--gold)' }}>
                   Azkar after {PRAYER_LABEL[prayerName] || 'Salah'}
                 </h3>
-                <p className="text-xs" style={{ color: '#3A4A60' }}>{index + 1} of {list.length}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{index + 1} of {list.length}</p>
               </div>
             </div>
-            <button onClick={handleClose} className="p-1.5 rounded-lg transition-colors hover:bg-white/5" style={{ color: '#7A8FA8' }}>
+            <button onClick={handleClose} className="p-1.5 rounded-lg transition-colors hover:bg-white/5" style={{ color: 'var(--text-secondary)' }}>
               <X size={20} />
             </button>
           </div>
 
           {/* Content */}
           <div className="px-7 py-7 min-h-[220px] flex flex-col justify-center text-center">
-            <p className="font-amiri text-2xl leading-loose mb-4" dir="rtl" style={{ color: '#EDE8D8' }}>
+            <p className="font-amiri text-2xl leading-loose mb-4" dir="rtl" style={{ color: 'var(--text-primary)' }}>
               {item.arabic}
             </p>
-            <p className="text-sm italic mb-3" style={{ color: '#C9A84C' }}>{item.transliteration}</p>
-            <p className="text-sm leading-relaxed mb-3" style={{ color: '#9CA8BD' }}>{item.meaning}</p>
+            <p className="text-sm italic mb-3" style={{ color: 'var(--gold)' }}>{item.transliteration}</p>
+            <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>{item.meaning}</p>
             {item.note && (
               <p className="text-xs mb-2 font-semibold" style={{ color: '#F59E0B' }}>{item.note}</p>
             )}
             {item.repeat && (
               <span className="inline-block mx-auto mt-1 text-xs font-bold px-3 py-1 rounded-full"
-                style={{ background: 'rgba(201,168,76,0.12)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.25)' }}>
+                style={{ background: 'rgba(201,168,76,0.12)', color: 'var(--gold)', border: '1px solid rgba(201,168,76,0.25)' }}>
                 Recite {item.repeat}×
               </span>
             )}
-            <p className="text-xs mt-4" style={{ color: '#3A4A60' }}>{item.source}</p>
+            <p className="text-xs mt-4" style={{ color: 'var(--text-muted)' }}>{item.source}</p>
           </div>
 
           {/* Footer / navigation */}
           <div className="flex items-center justify-between px-7 py-5" style={{ borderTop: '1px solid rgba(201,168,76,0.08)' }}>
             <button onClick={() => setIndex((i) => Math.max(0, i - 1))} disabled={isFirst}
               className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl transition disabled:opacity-30"
-              style={{ color: '#7A8FA8', background: 'rgba(255,255,255,0.03)' }}>
+              style={{ color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.03)' }}>
               <ChevronLeft size={15} /> Back
             </button>
 
@@ -94,7 +94,7 @@ export default function AzkarModal({ open, onClose, prayerName }) {
             ) : (
               <button onClick={() => setIndex((i) => Math.min(list.length - 1, i + 1))}
                 className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl transition"
-                style={{ color: '#C9A84C', background: 'rgba(201,168,76,0.1)' }}>
+                style={{ color: 'var(--gold)', background: 'rgba(201,168,76,0.1)' }}>
                 Next <ChevronRight size={15} />
               </button>
             )}

@@ -61,7 +61,7 @@ export default function ProfilePage() {
     return (
       <AppLayout>
         <div className="mb-8">
-          <h1 className="font-amiri text-4xl" style={{ color: '#C9A84C' }}>Profile</h1>
+          <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>Profile</h1>
         </div>
         <div className="h-64 rounded-2xl animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
       </AppLayout>
@@ -84,15 +84,15 @@ export default function ProfilePage() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="p-7 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mb-4"
-              style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.1))', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.25)' }}>
+              style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.1))', color: 'var(--gold)', border: '1px solid rgba(201,168,76,0.25)' }}>
               {profile.name?.[0]?.toUpperCase()}
             </div>
-            <h2 className="text-lg font-semibold" style={{ color: '#EDE8D8' }}>{profile.name}</h2>
-            <p className="text-sm flex items-center gap-1.5 mt-1" style={{ color: '#7A8FA8' }}>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{profile.name}</h2>
+            <p className="text-sm flex items-center gap-1.5 mt-1" style={{ color: 'var(--text-secondary)' }}>
               <Mail size={13} /> {profile.email}
             </p>
             {profile.city && (
-              <p className="text-sm flex items-center gap-1.5 mt-1" style={{ color: '#7A8FA8' }}>
+              <p className="text-sm flex items-center gap-1.5 mt-1" style={{ color: 'var(--text-secondary)' }}>
                 <MapPin size={13} /> {profile.city}
               </p>
             )}
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                 style={{ background: `${s.color}0D`, border: `1px solid ${s.color}25` }}>
                 <div className="mb-1.5 flex justify-center" style={{ color: s.color }}>{s.icon}</div>
                 <div className="text-xl font-bold" style={{ color: s.color }}>{s.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: '#7A8FA8' }}>{s.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -120,7 +120,7 @@ export default function ProfilePage() {
         {/* Right: edit form */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="lg:col-span-2">
           <Card className="p-7">
-            <h2 className="text-base font-semibold mb-5 flex items-center gap-2" style={{ color: '#C9A84C' }}>
+            <h2 className="text-base font-semibold mb-5 flex items-center gap-2" style={{ color: 'var(--gold)' }}>
               <User size={16} /> Edit Profile
             </h2>
 
@@ -133,11 +133,11 @@ export default function ProfilePage() {
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div className="flex items-center gap-3">
                   {form.notificationsEnabled
-                    ? <Bell size={17} style={{ color: '#C9A84C' }} />
-                    : <BellOff size={17} style={{ color: '#3A4A60' }} />}
+                    ? <Bell size={17} style={{ color: 'var(--gold)' }} />
+                    : <BellOff size={17} style={{ color: 'var(--text-muted)' }} />}
                   <div>
-                    <div className="text-sm font-medium" style={{ color: '#EDE8D8' }}>Prayer Notifications</div>
-                    <div className="text-xs" style={{ color: '#3A4A60' }}>Get reminded for upcoming prayer times</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Prayer Notifications</div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Get reminded for upcoming prayer times</div>
                   </div>
                 </div>
                 <button type="button"

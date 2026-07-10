@@ -66,8 +66,8 @@ export default function LoginPage() {
               style={{ filter: 'drop-shadow(0 0 24px rgba(201,168,76,0.6))' }}>
               ☽
             </motion.span>
-            <h1 className="font-amiri text-4xl mb-1" style={{ color: '#C9A84C' }}>Welcome Back</h1>
-            <p className="font-amiri text-lg" style={{ color: '#7A6130', direction: 'rtl' }}>
+            <h1 className="font-amiri text-4xl mb-1" style={{ color: 'var(--gold)' }}>Welcome Back</h1>
+            <p className="font-amiri text-lg" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>
               أَهْلاً وَسَهْلاً
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#7A8FA8' }}>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>
                 Email Address
               </label>
               <input
@@ -91,10 +91,10 @@ export default function LoginPage() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-semibold uppercase tracking-widest" style={{ color: '#7A8FA8' }}>
+                <label className="block text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
                   Password
                 </label>
-                <Link href="/forgot-password" className="text-xs font-medium hover:underline" style={{ color: '#C9A84C' }}>
+                <Link href="/forgot-password" className="text-xs font-medium hover:underline" style={{ color: 'var(--gold)' }}>
                   Forgot password?
                 </Link>
               </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                 />
                 <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: '#3A4A60' }}>
+                  className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -128,16 +128,16 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm mt-7" style={{ color: '#3A4A60' }}>
+          <p className="text-center text-sm mt-7" style={{ color: 'var(--text-muted)' }}>
             Don't have an account?{' '}
-            <Link href="/register" className="font-semibold hover:underline" style={{ color: '#C9A84C' }}>
+            <Link href="/register" className="font-semibold hover:underline" style={{ color: 'var(--gold)' }}>
               Create one free
             </Link>
           </p>
         </div>
 
         <p className="text-center mt-5 text-xs">
-          <Link href="/" style={{ color: '#3A4A60' }} className="hover:text-gold-dim">← Back to home</Link>
+          <Link href="/" style={{ color: 'var(--text-muted)' }} className="hover:text-gold-dim">← Back to home</Link>
         </p>
       </motion.div>
     </div>

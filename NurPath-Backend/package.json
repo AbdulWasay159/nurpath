@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed": "node src/utils/seed.js"
+    "seed": "node src/utils/seed.js",
+    "seed:adhkar": "node src/utils/seed-adhkar.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,6 +24,7 @@
     "resend": "^4.8.0"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^10.1.2",
     "nodemon": "^3.1.4"
   }
 }
