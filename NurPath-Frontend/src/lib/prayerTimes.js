@@ -248,3 +248,22 @@ export function getCurrentPrayerHadith(times, now = new Date()) {
   if (now >= isha) return PRAYER_HADITHS.isha;
   return PRAYER_HADITHS.fajr; // before fajr
 }
+
+// ── Get current active prayer name ─────────────────────────
+export function getCurrentActivePrayerName(times, now = new Date()) {
+  if (!times) {
+    const h = now.getHours();
+    if (h >= 4 && h < 7) return 'fajr';
+    if (h >= 12 && h < 15.5) return 'dhuhr';
+    if (h >= 15.5 && h < 18.5) return 'asr';
+    if (h >= 18.5 && h < 20) return 'maghrib';
+    return 'isha';
+  }
+  const { fajr, sunrise, dhuhr, asr, maghrib, isha } = times;
+  if (now >= fajr && now < (sunrise || dhuhr)) return 'fajr';
+  if (now >= dhuhr && now < asr) return 'dhuhr';
+  if (now >= asr && now < maghrib) return 'asr';
+  if (now >= maghrib && now < isha) return 'maghrib';
+  if (now >= isha || now < fajr) return 'isha';
+  return null;
+}

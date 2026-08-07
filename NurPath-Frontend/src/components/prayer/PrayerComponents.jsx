@@ -22,15 +22,22 @@ export const SUNNAH_META = {
   asr_sunnah:     { icon: '🌤️', label: 'Asr',           arabic: 'سنة العصر',   rakahs: 4,  note: '4 before Asr' },
   maghrib_sunnah: { icon: '🌅', label: 'Maghrib',        arabic: 'سنة المغرب',  rakahs: 2,  note: '2 after Maghrib' },
   isha_sunnah:    { icon: '🌙', label: 'Isha',           arabic: 'سنة العشاء',  rakahs: 2,  note: '2 after Isha' },
+  isha_witr:      { icon: '✨', label: 'Witr',           arabic: 'صلاة الوتر', rakahs: null, note: '1, 3, or 5+ after Isha' },
   jumuah_after:   { icon: '🕌', label: "Jumu'ah",        arabic: 'سنة الجمعة',  rakahs: null, note: '4 (masjid) or 2 (home) after Jumu\'ah' },
 };
 
-// Rakah count for jumuah_after depends on the variant chosen
+// Rakah count for jumuah_after / isha_witr depends on the variant chosen
 export function getSunnahRakahs(name, variant) {
   if (name === 'jumuah_after') {
     if (variant === 'masjid') return 4;
     if (variant === 'home') return 2;
     return null; // not chosen yet
+  }
+  if (name === 'isha_witr') {
+    if (variant === '1') return 1;
+    if (variant === '3') return 3;
+    if (variant === '5plus') return null; // shown as "5+" label, not a fixed count
+    return null;
   }
   return SUNNAH_META[name]?.rakahs ?? null;
 }
@@ -307,13 +314,15 @@ export function PrayerCard({ prayer, onUpdate, loading, prayerTime }) {
 function SunnahStatusModal({ sunnah, onChoose, onClose }) {
   const meta = SUNNAH_META[sunnah.name];
   const isJumuah = sunnah.name === 'jumuah_after';
+  const isWitr = sunnah.name === 'isha_witr';
+  const needsVariantPicker = isJumuah || isWitr;
 
   const options = [
     {
       status: 'done',
       label: 'Done',
       arabic: 'أَدَّيْتُهَا',
-      sub: isJumuah ? 'I prayed sunnah after Jumu\'ah' : 'Alhamdulillah — I prayed it',
+      sub: isJumuah ? 'I prayed sunnah after Jumu\'ah' : isWitr ? 'I prayed Witr' : 'Alhamdulillah — I prayed it',
       color: '#A78BFA',
       bg: 'rgba(139,92,246,0.08)',
       border: 'rgba(139,92,246,0.35)',
@@ -341,9 +350,9 @@ function SunnahStatusModal({ sunnah, onChoose, onClose }) {
     },
   ];
 
-  // For jumuah, "done" triggers the variant picker in parent — pass sentinel
+  // For jumuah_after / isha_witr, "done" triggers a variant picker in parent — pass sentinel
   const handleClick = (status) => {
-    if (isJumuah && status === 'done') {
+    if (needsVariantPicker && status === 'done') {
       onClose();
       // small delay so modal closes before variant picker opens
       setTimeout(() => onChoose(status, null, true), 120);
@@ -426,6 +435,7 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
   const status = sunnah.status;
   const rakahs = getSunnahRakahs(sunnah.name, sunnah.variant);
   const isJumuah = sunnah.name === 'jumuah_after';
+  const isWitr = sunnah.name === 'isha_witr';
 
   const styles = {
     pending: { border: 'rgba(201,168,76,0.08)', bg: 'rgba(255,255,255,0.02)', nameColor: '#7A8FA8', accent: '#3A4A60' },
@@ -434,9 +444,9 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
   };
   const s = styles[status] || styles.pending;
 
-  const handleChoose = (newStatus, variant, openJumuahPicker) => {
+  const handleChoose = (newStatus, variant, openVariantPicker) => {
     setPickerOpen(false);
-    onUpdate(sunnah.name, newStatus, variant, openJumuahPicker);
+    onUpdate(sunnah.name, newStatus, variant, openVariantPicker);
   };
 
   return (
@@ -469,6 +479,11 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
             ? (sunnah.variant === 'masjid' ? '4 rak'
              : sunnah.variant === 'home'   ? '2 rak'
              : '?')
+            : isWitr
+            ? (sunnah.variant === '1'     ? '1 rak'
+             : sunnah.variant === '3'     ? '3 rak'
+             : sunnah.variant === '5plus' ? '5+ rak'
+             : '?')
             : `${rakahs} rak`}
         </span>
 
@@ -489,6 +504,13 @@ export function SunnahCard({ sunnah, onUpdate, loading }) {
         {isJumuah && status === 'done' && sunnah.variant && (
           <div className="mt-0.5 text-xs" style={{ color: '#A78BFA', fontSize: '0.58rem' }}>
             {sunnah.variant === 'masjid' ? '🕌 masjid' : '🏠 home'}
+          </div>
+        )}
+
+        {/* Variant badge for witr done */}
+        {isWitr && status === 'done' && sunnah.variant && (
+          <div className="mt-0.5 text-xs" style={{ color: '#A78BFA', fontSize: '0.58rem' }}>
+            {sunnah.variant === '1' ? '1 rak\'ah' : sunnah.variant === '3' ? '3 rak\'ah' : '5+ rak\'ah'}
           </div>
         )}
       </motion.div>
@@ -550,6 +572,48 @@ export function JumuahVariantModal({ open, onChoose, onClose }) {
   );
 }
 
+// ─── SUNNAH: Witr rak'ah picker modal ────────────────────────────────────────
+
+export function WitrVariantModal({ open, onChoose, onClose }) {
+  if (!open) return null;
+  const options = [
+    { key: '1', icon: '✨', label: '1 Rak\'ah', color: '#A78BFA', bg: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.3)' },
+    { key: '3', icon: '✨', label: '3 Rak\'ah', color: '#2DD4BF', bg: 'rgba(45,212,191,0.06)', border: 'rgba(45,212,191,0.2)' },
+    { key: '5plus', icon: '✨', label: '5+ Rak\'ah', color: '#F59E0B', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.2)' },
+  ];
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
+      <motion.div
+        initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+        className="rounded-2xl p-6 w-full max-w-xs mx-4 mb-4 sm:mb-0"
+        style={{ background: 'var(--bg-card)', border: '1px solid rgba(139,92,246,0.3)' }}
+        onClick={(e) => e.stopPropagation()}>
+        <p className="font-amiri text-lg mb-1 text-center" style={{ color: 'var(--gold)' }}>صلاة الوتر</p>
+        <h3 className="text-sm font-semibold text-center mb-1" style={{ color: 'var(--text-primary)' }}>
+          How many rak'ah of Witr?
+        </h3>
+        <p className="text-xs text-center mb-5" style={{ color: 'var(--text-secondary)' }}>
+          Witr is prayed in an odd number of rak'ah.
+        </p>
+        <div className="grid grid-cols-3 gap-2.5">
+          {options.map((opt) => (
+            <button key={opt.key} onClick={() => onChoose(opt.key)}
+              className="rounded-xl py-4 flex flex-col items-center gap-2 transition"
+              style={{ background: opt.bg, border: `1px solid ${opt.border}` }}>
+              <span className="text-xl">{opt.icon}</span>
+              <span className="text-xs font-semibold text-center leading-tight" style={{ color: opt.color }}>{opt.label}</span>
+            </button>
+          ))}
+        </div>
+        <button onClick={onClose} className="w-full mt-4 text-xs py-2" style={{ color: 'var(--text-muted)' }}>
+          Cancel
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── SUNNAH: Row of mini pills (for history expanded view) ───────────────────
 
 export function SunnahPill({ name, status, variant }) {
@@ -561,10 +625,11 @@ export function SunnahPill({ name, status, variant }) {
   };
   const c = colors[status] || colors.pending;
   const rakahs = getSunnahRakahs(name, variant);
+  const rakahLabel = name === 'isha_witr' && variant === '5plus' ? '5+' : rakahs;
   return (
     <span className="text-xs font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
       style={{ background: c.bg, color: c.color }}>
-      {meta?.label}{rakahs ? ` (${rakahs})` : ''}
+      {meta?.label}{rakahLabel ? ` (${rakahLabel})` : ''}
     </span>
   );
 }

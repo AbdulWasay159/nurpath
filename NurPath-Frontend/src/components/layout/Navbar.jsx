@@ -16,7 +16,7 @@ const navItems = [
   { href: '/adhkar',          label: 'Adhkar',         icon: BookMarked },
   { href: '/qibla',           label: 'Qibla',          icon: Compass },
   { href: '/history',         label: 'History',        icon: BookOpen },
-  { href: '/stats',      label: 'Statistics',icon: BarChart2 },
+  { href: '/stats',           label: 'Statistics',     icon: BarChart2 },
 ];
 
 export default function Navbar({ notifications = 0 }) {

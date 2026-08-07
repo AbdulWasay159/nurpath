@@ -98,12 +98,14 @@ function EditSunnahModal({ date, sunnah, onSave, onClose }) {
   const [saving, setSaving] = useState(false);
   const meta = SUNNAH_META[sunnah.name];
   const isJumuah = sunnah.name === 'jumuah_after';
+  const isWitr = sunnah.name === 'isha_witr';
+  const needsVariant = isJumuah || isWitr;
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const body = { status };
-      if (isJumuah) body.variant = variant;
+      if (needsVariant) body.variant = variant;
       await api.put(`/prayers/${date}/sunnah/${sunnah.name}`, body);
       onSave();
     } catch {
@@ -112,7 +114,7 @@ function EditSunnahModal({ date, sunnah, onSave, onClose }) {
     }
   };
 
-  const unchanged = status === sunnah.status && (!isJumuah || variant === sunnah.variant);
+  const unchanged = status === sunnah.status && (!needsVariant || variant === sunnah.variant);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }}
@@ -158,6 +160,26 @@ function EditSunnahModal({ date, sunnah, onSave, onClose }) {
                     color: variant === v ? '#A78BFA' : '#7A8FA8',
                   }}>
                   {v === 'masjid' ? '🕌 Masjid (4)' : '🏠 Home (2)'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Witr rak'ah picker */}
+        {isWitr && status === 'done' && (
+          <div className="mb-4">
+            <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>How many rak'ah?</p>
+            <div className="grid grid-cols-3 gap-2">
+              {['1', '3', '5plus'].map((v) => (
+                <button key={v} onClick={() => setVariant(v)}
+                  className="py-2.5 rounded-xl text-xs font-semibold capitalize transition"
+                  style={{
+                    background: variant === v ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${variant === v ? 'rgba(139,92,246,0.5)' : 'rgba(255,255,255,0.07)'}`,
+                    color: variant === v ? '#A78BFA' : '#7A8FA8',
+                  }}>
+                  {v === '5plus' ? '5+' : v}
                 </button>
               ))}
             </div>
@@ -322,17 +344,18 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                         {sunnahDone}/{sunnahTotal} done
                       </span>
                     </div>
-                    <div className={`grid gap-2.5 mb-3 ${sunnah.length === 5 ? 'grid-cols-5' : 'grid-cols-6'}`}>
+                    <div className="grid gap-2.5 mb-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7">
                       {sunnah.map((s) => {
                         const meta = SUNNAH_META[s.name];
                         const col = SUNNAH_STATUS_COLORS[s.status] || '#2A3A50';
                         const rakahs = getSunnahRakahs(s.name, s.variant);
+                        const rakLabel = s.name === 'isha_witr' && s.variant === '5plus' ? '5+' : rakahs;
                         return (
                           <div key={s.name} className="rounded-xl p-2.5 text-center relative group" style={{ background: `${col}12`, border: `1px solid ${col}30` }}>
                             <span className="block text-base mb-0.5">{meta?.icon}</span>
                             <span className="block font-semibold leading-tight mb-0.5" style={{ color: col, fontSize: '0.62rem' }}>{meta?.label}</span>
                             <span className="block mb-1" style={{ color: 'var(--text-muted)', fontSize: '0.58rem' }}>
-                              {rakahs ? `${rakahs} rak` : s.name === 'jumuah_after' ? '?' : ''}
+                              {rakLabel ? `${rakLabel} rak` : (s.name === 'jumuah_after' || s.name === 'isha_witr') ? '?' : ''}
                             </span>
                             <span className="block font-medium capitalize" style={{ color: col, fontSize: '0.6rem' }}>
                               {s.status === 'skipped' ? 'skipped' : s.status}
@@ -341,6 +364,12 @@ function HistoryRow({ record, isExpanded, onToggle, onRecordUpdated }) {
                             {s.name === 'jumuah_after' && s.variant && (
                               <span className="block mt-0.5" style={{ color: 'var(--purple)', fontSize: '0.55rem' }}>
                                 {s.variant === 'masjid' ? '🕌' : '🏠'} {s.variant}
+                              </span>
+                            )}
+                            {/* Witr variant */}
+                            {s.name === 'isha_witr' && s.variant && (
+                              <span className="block mt-0.5" style={{ color: 'var(--purple)', fontSize: '0.55rem' }}>
+                                ✨ {s.variant === '5plus' ? '5+ rak\'ah' : `${s.variant} rak'ah`}
                               </span>
                             )}
                             {s.markedAt && (
@@ -424,7 +453,7 @@ export default function HistoryPage() {
   });
 
   // Per-sunnah breakdown (weekday only — exclude jumuah from weekday names)
-  const WEEKDAY_SUNNAH = ['fajr_sunnah', 'dhuhr_before', 'dhuhr_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah'];
+  const WEEKDAY_SUNNAH = ['fajr_sunnah', 'dhuhr_before', 'dhuhr_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah', 'isha_witr'];
   const bySunnah = WEEKDAY_SUNNAH.map((name) => {
     const total = history.reduce((a, r) => a + ((r.sunnahPrayers || []).some((s) => s.name === name) ? 1 : 0), 0);
     const done  = history.reduce((a, r) => a + ((r.sunnahPrayers || []).find((s) => s.name === name)?.status === 'done' ? 1 : 0), 0);
@@ -519,7 +548,7 @@ export default function HistoryPage() {
               {bySunnah.map(({ name, done, total, pct }) => (
                 <div key={name} className="flex items-center gap-3">
                   <span className="text-xs w-24 font-medium" style={{ color: 'var(--purple)', fontSize: '0.7rem' }}>
-                    {SUNNAH_META[name]?.label} ({SUNNAH_META[name]?.rakahs}r)
+                    {SUNNAH_META[name]?.label}{SUNNAH_META[name]?.rakahs ? ` (${SUNNAH_META[name].rakahs}r)` : name === 'isha_witr' ? ' (var.)' : ''}
                   </span>
                   <div className="flex-1 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
                     <motion.div className="h-full rounded-full" style={{ background: pct >= 80 ? '#A78BFA' : pct >= 50 ? '#7C5FBF' : '#3A2A60' }}

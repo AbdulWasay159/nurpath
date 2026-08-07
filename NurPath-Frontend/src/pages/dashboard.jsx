@@ -6,19 +6,20 @@ import toast from 'react-hot-toast';
 import AppLayout from '../components/layout/AppLayout';
 import {
   PrayerRing, PrayerCard,
-  SunnahCard, JumuahVariantModal,
+  SunnahCard, JumuahVariantModal, WitrVariantModal,
 } from '../components/prayer/PrayerComponents';
 import AzkarModal from '../components/prayer/AzkarModal';
 import { Card, StatCard, Skeleton } from '../components/ui';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { usePrayerTimes } from '../hooks/usePrayerTimes';
+import { getCurrentActivePrayerName } from '../lib/prayerTimes';
 import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const {
-    formattedTimes, nextPrayer, greeting, hadith,
+    times, formattedTimes, nextPrayer, greeting, hadith,
     hijri, islamicOccasion, locationName,
   } = usePrayerTimes();
 
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const [azkarPrayer, setAzkarPrayer]       = useState(null);
   const [sunnahOpen, setSunnahOpen]         = useState(true);
   const [jumuahPicker, setJumuahPicker]     = useState(false); // show variant modal
+  const [witrPicker, setWitrPicker]         = useState(false); // show witr rak'ah modal
 
   const isFriday = new Date().getDay() === 5;
 
@@ -66,7 +68,17 @@ export default function DashboardPage() {
 
       if (status === 'done') {
         toast.success('الحمد لله — Prayed ✓', { icon: null });
-        setAzkarPrayer(name);
+        // Only show post-Salah Adhkar popup if marking the CURRENT active prayer (e.g. Isha)
+        // If marking earlier prayers (e.g. Dhuhr/Asr updated late during Isha time), do not show popup.
+        const currentActive = getCurrentActivePrayerName(times, new Date());
+        if (currentActive && currentActive === name) {
+          setAzkarPrayer(name);
+        }
+      }
+      if (status === 'qada') {
+        toast.success('الحمد لله — Qaḍā completed', { icon: null });
+        // Post-Salah Adhkar popup is currently skipped for Qaḍā/late prayers.
+        // To enable Adhkar popup for Qaḍā in future updates, setAzkarPrayer(name) can be called here.
       }
       if (status === 'missed') toast.error('أستغفر الله — Missed', { icon: null });
       if (status === 'pending') toast('Reset ↺', { icon: null });
@@ -79,15 +91,16 @@ export default function DashboardPage() {
 
   // ── Sunnah update ─────────────────────────────────────────────────────────────
   const handleSunnahUpdate = async (name, status, variant, openPicker) => {
-    // For jumuah_after pending→done, open the variant picker first
+    // For jumuah_after / isha_witr pending→done, open the variant picker first
     if (openPicker) {
-      setJumuahPicker(true);
+      if (name === 'jumuah_after') setJumuahPicker(true);
+      if (name === 'isha_witr') setWitrPicker(true);
       return;
     }
     setUpdatingSunnah(name);
     try {
       const body = { status };
-      if (name === 'jumuah_after' && variant) body.variant = variant;
+      if ((name === 'jumuah_after' || name === 'isha_witr') && variant) body.variant = variant;
       const res = await api.put(`/prayers/today/sunnah/${name}`, body);
       setSunnahPrayers(res.data.data.sunnahPrayers || []);
       if (status === 'done')    toast.success('بارك الله — Sunnah ✓', { icon: null });
@@ -103,6 +116,11 @@ export default function DashboardPage() {
   const handleJumuahVariant = async (variant) => {
     setJumuahPicker(false);
     await handleSunnahUpdate('jumuah_after', 'done', variant, false);
+  };
+
+  const handleWitrVariant = async (variant) => {
+    setWitrPicker(false);
+    await handleSunnahUpdate('isha_witr', 'done', variant, false);
   };
 
   // Sunnah summary counts
@@ -135,11 +153,6 @@ export default function DashboardPage() {
           {islamicOccasion && (
             <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(45,212,191,0.1)', color: '#2DD4BF' }}>
               ✨ {islamicOccasion}
-            </span>
-          )}
-          {isFriday && (
-            <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{ background: 'rgba(139,92,246,0.1)', color: '#A78BFA' }}>
-              🕌 Jumu'ah Mubarak
             </span>
           )}
         </div>
@@ -232,10 +245,11 @@ export default function DashboardPage() {
               transition={{ duration: 0.25 }}
               style={{ overflow: 'hidden' }}
             >
-              {/* Sunnah grid */}
-              <div className={`grid gap-2.5 ${sunnahTotal === 5 ? 'grid-cols-5' : 'grid-cols-6'}`}>
+              {/* Sunnah grid — 3 cols on small screens, up to 7 on larger ones so Friday's 6
+                  and weekday's 7 entries (with Witr) both lay out cleanly without overflow */}
+              <div className="grid gap-2.5 grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7">
                 {loading
-                  ? Array(6).fill(0).map((_, i) => <Skeleton key={i} style={{ height: 110, borderRadius: 12 }} />)
+                  ? Array(7).fill(0).map((_, i) => <Skeleton key={i} style={{ height: 110, borderRadius: 12 }} />)
                   : sunnahPrayers.map((s) => (
                       <SunnahCard key={s.name} sunnah={s}
                         onUpdate={handleSunnahUpdate}
@@ -347,6 +361,11 @@ export default function DashboardPage() {
         open={jumuahPicker}
         onChoose={handleJumuahVariant}
         onClose={() => setJumuahPicker(false)}
+      />
+      <WitrVariantModal
+        open={witrPicker}
+        onChoose={handleWitrVariant}
+        onClose={() => setWitrPicker(false)}
       />
     </AppLayout>
   );

@@ -5,9 +5,9 @@ const { asyncHandler } = require('../middleware/error.middleware');
 const PRAYER_NAMES = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
 // Normal-day sunnah names
-const SUNNAH_NAMES_WEEKDAY = ['fajr_sunnah', 'dhuhr_before', 'dhuhr_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah'];
+const SUNNAH_NAMES_WEEKDAY = ['fajr_sunnah', 'dhuhr_before', 'dhuhr_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah', 'isha_witr'];
 // Friday sunnah names (dhuhr replaced by jumuah_after)
-const SUNNAH_NAMES_FRIDAY  = ['fajr_sunnah', 'jumuah_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah'];
+const SUNNAH_NAMES_FRIDAY  = ['fajr_sunnah', 'jumuah_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah', 'isha_witr'];
 // All valid sunnah name values
 const ALL_SUNNAH_NAMES = [...new Set([...SUNNAH_NAMES_WEEKDAY, ...SUNNAH_NAMES_FRIDAY])];
 
@@ -22,10 +22,24 @@ const freshSunnahPrayers = (dateStr) => {
   return names.map((name) => ({ name, status: 'pending', variant: null, markedAt: null }));
 };
 
-// Ensure a record's sunnahPrayers array is populated (migration-safe)
+// Ensure a record's sunnahPrayers array is populated AND up to date with the
+// current name list for that day (migration-safe). Handles two cases:
+//   1. Fully empty/missing array → seed it fresh.
+//   2. Array exists but is missing entries added later (e.g. isha_witr) →
+//      append just the missing ones, leaving existing progress untouched.
 const ensureSunnah = (record) => {
   if (!record.sunnahPrayers || record.sunnahPrayers.length === 0) {
     record.sunnahPrayers = freshSunnahPrayers(record.date);
+    return;
+  }
+  const dayOfWeek = new Date(record.date + 'T12:00:00').getDay();
+  const expectedNames = dayOfWeek === 5 ? SUNNAH_NAMES_FRIDAY : SUNNAH_NAMES_WEEKDAY;
+  const existingNames = new Set(record.sunnahPrayers.map((s) => s.name));
+  const missing = expectedNames.filter((name) => !existingNames.has(name));
+  if (missing.length > 0) {
+    missing.forEach((name) => {
+      record.sunnahPrayers.push({ name, status: 'pending', variant: null, markedAt: null });
+    });
   }
 };
 
@@ -231,12 +245,15 @@ const updateSunnahStatus = asyncHandler(async (req, res) => {
   if (!['pending', 'done', 'skipped'].includes(status)) {
     return res.status(400).json({ success: false, message: 'Invalid status. Use: pending, done, skipped.' });
   }
-  // variant only valid for jumuah_after
-  if (variant !== undefined && sunnahName !== 'jumuah_after') {
-    return res.status(400).json({ success: false, message: 'variant is only valid for jumuah_after.' });
+  // variant only valid for jumuah_after or isha_witr
+  if (variant !== undefined && !['jumuah_after', 'isha_witr'].includes(sunnahName)) {
+    return res.status(400).json({ success: false, message: 'variant is only valid for jumuah_after or isha_witr.' });
   }
   if (sunnahName === 'jumuah_after' && variant && !['masjid', 'home'].includes(variant)) {
     return res.status(400).json({ success: false, message: 'variant must be masjid or home.' });
+  }
+  if (sunnahName === 'isha_witr' && variant && !['1', '3', '5plus'].includes(variant)) {
+    return res.status(400).json({ success: false, message: 'variant must be 1, 3, or 5plus.' });
   }
 
   const today = new Date().toLocaleDateString('en-CA');
@@ -260,7 +277,7 @@ const updateSunnahStatus = asyncHandler(async (req, res) => {
 
   sunnah.status = status;
   sunnah.markedAt = status !== 'pending' ? new Date() : null;
-  if (sunnahName === 'jumuah_after') {
+  if (sunnahName === 'jumuah_after' || sunnahName === 'isha_witr') {
     sunnah.variant = variant || null;
   }
 
@@ -306,7 +323,7 @@ const updatePastSunnahStatus = asyncHandler(async (req, res) => {
 
   sunnah.status = status;
   sunnah.markedAt = status !== 'pending' ? new Date() : null;
-  if (sunnahName === 'jumuah_after') {
+  if (sunnahName === 'jumuah_after' || sunnahName === 'isha_witr') {
     sunnah.variant = variant || null;
   }
 

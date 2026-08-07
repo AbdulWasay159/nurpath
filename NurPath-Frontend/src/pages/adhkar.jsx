@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLayout from '../components/layout/AppLayout';
 import { getMorningAdhkar, getEveningAdhkar } from '../lib/adhkar-enhanced';
-import { Sun, Moon, ChevronDown, ChevronUp, RotateCcw, CheckCircle2, Info, BookOpen, ShieldCheck, Clock, Star } from 'lucide-react';
+import { getNamazAdhkar } from '../lib/azkar';
+import { Sun, Moon, HandHeart, ChevronDown, ChevronUp, RotateCcw, CheckCircle2, Info, BookOpen, ShieldCheck, Clock, Star } from 'lucide-react';
 
 // ── Storage helpers ──────────────────────────────────────────────────────────
 function storageKey(tab) {
@@ -38,11 +39,12 @@ function DhikrCard({ dhikr, index, tab, done, onDone, onUndo }) {
 
   const timingLabel =
     dhikr.timing.length === 2 ? 'Morning & Evening' :
-    dhikr.timing[0] === 'morning' ? 'Morning' : 'Evening';
+    dhikr.timing[0] === 'morning' ? 'Morning' :
+    dhikr.timing[0] === 'evening' ? 'Evening' : 'After Namaz';
 
-  const accentColor = tab === 'morning' ? '#C9A84C' : '#A78BFA';
-  const accentBg    = tab === 'morning' ? 'rgba(201,168,76,0.15)' : 'rgba(139,92,246,0.15)';
-  const accentBorder= tab === 'morning' ? 'rgba(201,168,76,0.35)' : 'rgba(139,92,246,0.35)';
+  const accentColor = tab === 'morning' ? '#C9A84C' : tab === 'evening' ? '#A78BFA' : '#4ADE80';
+  const accentBg    = tab === 'morning' ? 'rgba(201,168,76,0.15)' : tab === 'evening' ? 'rgba(139,92,246,0.15)' : 'rgba(74,222,128,0.15)';
+  const accentBorder= tab === 'morning' ? 'rgba(201,168,76,0.35)' : tab === 'evening' ? 'rgba(139,92,246,0.35)' : 'rgba(74,222,128,0.35)';
 
   return (
     <motion.div
@@ -221,7 +223,7 @@ export default function AdhkarPage() {
   // progress bar always reflects live state immediately.
   const [doneMap, setDoneMap] = useState(() => loadProgress(getDefaultTab()));
 
-  const adhkar = tab === 'morning' ? getMorningAdhkar() : getEveningAdhkar();
+  const adhkar = tab === 'morning' ? getMorningAdhkar() : tab === 'evening' ? getEveningAdhkar() : getNamazAdhkar();
 
   // When switching tabs, reload persisted progress for that tab
   const switchTab = (newTab) => {
@@ -257,22 +259,24 @@ export default function AdhkarPage() {
   const total = adhkar.length;
   const allDone = completed === total;
 
-  const accentColor = tab === 'morning' ? '#C9A84C' : '#A78BFA';
+  const accentColor = tab === 'morning' ? '#C9A84C' : tab === 'evening' ? '#A78BFA' : '#4ADE80';
 
   return (
     <AppLayout>
       {/* ── Header ── */}
       <div className="mb-8">
         <p className="font-amiri text-sm mb-1" style={{ color: 'var(--gold-dim)', direction: 'rtl' }}>
-          {tab === 'morning' ? 'أَذْكَارُ الصَّبَاحِ' : 'أَذْكَارُ الْمَسَاءِ'}
+          {tab === 'morning' ? 'أَذْكَارُ الصَّبَاحِ' : tab === 'evening' ? 'أَذْكَارُ الْمَسَاءِ' : 'أَذْكَارُ بَعْدَ الصَّلَاةِ'}
         </p>
         <h1 className="font-amiri text-4xl" style={{ color: 'var(--gold)' }}>
-          {tab === 'morning' ? 'Morning Adhkar' : 'Evening Adhkar'}
+          {tab === 'morning' ? 'Morning Adhkar' : tab === 'evening' ? 'Evening Adhkar' : 'After Namaz Adhkar'}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
           {tab === 'morning'
             ? 'Recite after Fajr prayer until before Dhuhr.'
-            : 'Recite after Asr prayer until before Maghrib.'}
+            : tab === 'evening'
+            ? 'Recite after Asr prayer until before Maghrib.'
+            : 'Recite after each of the 5 obligatory prayers, right after the salam.'}
         </p>
       </div>
 
@@ -281,6 +285,7 @@ export default function AdhkarPage() {
         {[
           { key: 'morning', label: 'Morning', Icon: Sun, color: 'var(--gold)', bg: 'rgba(201,168,76,0.15)', border: 'rgba(201,168,76,0.35)' },
           { key: 'evening', label: 'Evening', Icon: Moon, color: '#A78BFA', bg: 'rgba(139,92,246,0.15)', border: 'rgba(139,92,246,0.35)' },
+          { key: 'namaz', label: 'After Namaz', Icon: HandHeart, color: '#4ADE80', bg: 'rgba(74,222,128,0.15)', border: 'rgba(74,222,128,0.35)' },
         ].map(({ key, label, Icon, color, bg, border }) => (
           <button key={key} onClick={() => switchTab(key)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition"

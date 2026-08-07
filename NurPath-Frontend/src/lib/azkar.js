@@ -87,3 +87,22 @@ export function getAzkarForPrayer(prayerName) {
       : item
   ).concat(prayerName === 'fajr' ? [FAJR_EXTRA_DUA] : []);
 }
+
+// ── Adapter: reshape AZKAR_AFTER_SALAH into the same field shape used by
+// adhkar-enhanced.js (id, translation, count, timing, reference, authenticity,
+// occasion) so the Adhkar page can render it as a third "After Namaz" tab
+// alongside Morning/Evening using the same DhikrCard component.
+export function getNamazAdhkar() {
+  return AZKAR_AFTER_SALAH.map((item) => ({
+    id: `namaz-${item.id}`,
+    arabic: item.arabic,
+    transliteration: item.transliteration,
+    translation: item.meaning,
+    count: item.repeat || 1,
+    timing: ['namaz'],
+    reference: item.source,
+    authenticity: undefined,
+    occasion: 'After each of the 5 obligatory prayers',
+    benefits: item.note || undefined,
+  }));
+}

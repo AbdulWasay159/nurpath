@@ -9,17 +9,18 @@ const prayerEntrySchema = new mongoose.Schema({
 });
 
 // Sunnah entry schema
-// Names for normal days:  fajr_sunnah | dhuhr_before | dhuhr_after | asr_sunnah | maghrib_sunnah | isha_sunnah
+// Names for normal days:  fajr_sunnah | dhuhr_before | dhuhr_after | asr_sunnah | maghrib_sunnah | isha_sunnah | isha_witr
 // Name for Friday:        jumuah_after  (replaces dhuhr_before + dhuhr_after)
 const sunnahEntrySchema = new mongoose.Schema({
   name: {
     type: String,
-    enum: ['fajr_sunnah', 'dhuhr_before', 'dhuhr_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah', 'jumuah_after'],
+    enum: ['fajr_sunnah', 'dhuhr_before', 'dhuhr_after', 'asr_sunnah', 'maghrib_sunnah', 'isha_sunnah', 'isha_witr', 'jumuah_after'],
     required: true,
   },
   status: { type: String, enum: ['pending', 'done', 'skipped'], default: 'pending' },
-  // For jumuah_after only: 'masjid' (4 rakah) | 'home' (2 rakah) | null
-  variant: { type: String, enum: ['masjid', 'home', null], default: null },
+  // For jumuah_after: 'masjid' (4 rakah) | 'home' (2 rakah) | null
+  // For isha_witr: '1' | '3' | '5plus' | null
+  variant: { type: String, enum: ['masjid', 'home', '1', '3', '5plus', null], default: null },
   markedAt: { type: Date, default: null },
 });
 

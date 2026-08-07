@@ -1,0 +1,50 @@
+{
+  "appId": "app.nurpath.companion",
+  "appName": "NurPath",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_nurpath",
+      "iconColor": "#C9A84C",
+      "sound": "makkah_adhan.wav",
+      "channels": [
+        {
+          "id": "nurpath_adhan",
+          "name": "Adhan & Salah Reminders",
+          "description": "Adhan call and prayer time alerts",
+          "importance": 5,
+          "visibility": 1,
+          "sound": "makkah_adhan.wav",
+          "lights": true,
+          "lightColor": "#C9A84C",
+          "vibration": true
+        },
+        {
+          "id": "nurpath_silent",
+          "name": "Silent Reminders",
+          "description": "Vibrate-only reminders",
+          "importance": 3,
+          "visibility": 1,
+          "sound": null,
+          "vibration": true
+        }
+      ]
+    },
+    "Geolocation": {
+      "permissions": {
+        "location": "This app needs location access to calculate accurate prayer times for your city."
+      }
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#0F1620",
+    "minWebViewVersion": 60,
+    "appendUserAgent": "NurPath/1.0 Android"
+  }
+}

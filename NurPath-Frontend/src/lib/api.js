@@ -14,14 +14,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally — redirect to login
+// Handle 401 globally — redirect to login if not already on auth/public pages
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
+      const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+      const isPublicPath = publicPaths.some((p) => window.location.pathname.startsWith(p));
       localStorage.removeItem('nurpath_token');
       localStorage.removeItem('nurpath_user');
-      window.location.href = '/login';
+      if (!isPublicPath) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }
